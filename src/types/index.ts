@@ -81,3 +81,39 @@ export interface OperateTrip {
   passengers: Passenger[];
   stops: RouteStop[];
 }
+
+export interface VehicleSpec {
+  label: string;
+  value: string;
+}
+
+export interface Vehicle {
+  name: string;
+  plate: string;
+  status: string;
+  specs: VehicleSpec[];
+}
+
+export interface VehicleDocument {
+  id: string;
+  name: string;
+  detail: string;
+  valid: boolean;
+  expiry: string;
+}
+
+export interface VehicleTrip {
+  id: string;
+  route: string;
+  time: string;
+  success: boolean;
+}
+
+export interface VehiclePageData {
+  vehicle: Vehicle;
+  documentsUpdatedAt: string;
+  documents: VehicleDocument[];
+  trips: VehicleTrip[];
+  adminNote: string;
+  tipNote: string;
+}

@@ -9,7 +9,7 @@ import { Icon } from "@/components/ui/icon";
 
 const navItems = [
   { label: "Tổng quan", href: "/" },
-  { label: "Xe được giao", href: "#" },
+  { label: "Xe được giao", href: "/xe" },
   { label: "Hồ sơ", href: "#" },
 ] as const;
 
@@ -41,7 +41,7 @@ function NavLink({
     </>
   );
 
-  if (item.href === "/") {
+  if (item.href.startsWith("/")) {
     return (
       <Link
         href={item.href}

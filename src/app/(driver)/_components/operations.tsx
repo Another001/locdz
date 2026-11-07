@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { Icon } from "@/components/ui/icon";
 
 export function Operations() {
@@ -48,13 +50,13 @@ export function Operations() {
                 </strong>
               </div>
 
-              <a
-                href="#"
+              <Link
+                href="/xe"
                 className="inline-flex min-h-11 flex-none items-center gap-1 text-xs font-bold text-sky-700 transition-[gap] hover:gap-2.5"
               >
                 Chi tiết
                 <Icon name="arrow-up-right" className="h-4 w-4" />
-              </a>
+              </Link>
             </div>
 
             <dl className="mt-[19px] grid grid-cols-2 gap-x-[18px] gap-y-4 border-t border-line-soft pt-[17px]">
