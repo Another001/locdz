@@ -2,22 +2,25 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import { Icon } from "@/components/ui/icon";
 
 const navItems = [
-  { label: "Tổng quan", href: "/", active: true },
-  { label: "Xe được giao", href: "#", active: false },
-  { label: "Hồ sơ", href: "#", active: false },
+  { label: "Tổng quan", href: "/" },
+  { label: "Xe được giao", href: "#" },
+  { label: "Hồ sơ", href: "#" },
 ] as const;
+
+type NavItem = { label: string; href: string; active: boolean };
 
 function NavLink({
   item,
   mobile = false,
   onNavigate,
 }: {
-  item: (typeof navItems)[number];
+  item: NavItem;
   mobile?: boolean;
   onNavigate?: () => void;
 }) {
@@ -34,7 +37,7 @@ function NavLink({
   const content = (
     <>
       {item.label}
-      {!mobile && item.active ? <span className="sr-only"> (Ä‘ang xem)</span> : null}
+      {!mobile && item.active ? <span className="sr-only"> (đang xem)</span> : null}
     </>
   );
 
@@ -64,9 +67,14 @@ function NavLink({
 }
 
 export function DriverHeader() {
+  const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
+  const nav = navItems.map((item) => ({
+    ...item,
+    active: item.href === pathname,
+  }));
 
   useEffect(() => {
     const update = () => setScrolled(window.scrollY > 8);
@@ -141,7 +149,7 @@ export function DriverHeader() {
           className="hidden items-center gap-[30px] min-[901px]:flex"
           aria-label="Điều hướng tài xế"
         >
-          {navItems.map((item) => (
+          {nav.map((item) => (
             <NavLink key={item.label} item={item} />
           ))}
         </nav>
@@ -190,7 +198,7 @@ export function DriverHeader() {
           className="absolute inset-x-0 top-full border-b border-line bg-white px-5 pb-[22px] pt-[18px] shadow-md min-[901px]:hidden"
         >
           <nav className="flex flex-col" aria-label="Điều hướng tài xế trên di động">
-            {navItems.map((item) => (
+            {nav.map((item) => (
               <NavLink
                 key={item.label}
                 item={item}
