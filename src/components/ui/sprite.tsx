@@ -15,7 +15,11 @@ export type IconName =
   | "copy"
   | "alert"
   | "lock"
-  | "logout";
+  | "logout"
+  | "mail"
+  | "shield"
+  | "eye"
+  | "eye-off";
 
 export function Sprite() {
   return (
@@ -120,6 +124,26 @@ export function Sprite() {
           <path d="M14 4.5H7A2.5 2.5 0 0 0 4.5 7v10A2.5 2.5 0 0 0 7 19.5h7" />
           <path d="M10.5 12H20" />
           <path d="m16.5 8.5 3.5 3.5-3.5 3.5" />
+        </symbol>
+
+        <symbol id="i-mail" viewBox="0 0 24 24" className="icon-sym">
+          <rect x="3.5" y="5.5" width="17" height="13" rx="2.5" />
+          <path d="m4.5 7 7.5 5.5L19.5 7" />
+        </symbol>
+
+        <symbol id="i-shield" viewBox="0 0 24 24" className="icon-sym">
+          <path d="M12 3.2 19 6v5.2c0 4.4-3 8.1-7 9.6-4-1.5-7-5.2-7-9.6V6l7-2.8Z" />
+          <path d="m9 12 2.1 2.1L15.4 10" />
+        </symbol>
+
+        <symbol id="i-eye" viewBox="0 0 24 24" className="icon-sym">
+          <path d="M2.6 12S6.1 5.9 12 5.9 21.4 12 21.4 12 17.9 18.1 12 18.1 2.6 12 2.6 12Z" />
+          <circle cx="12" cy="12" r="2.9" />
+        </symbol>
+
+        <symbol id="i-eye-off" viewBox="0 0 24 24" className="icon-sym">
+          <path d="M4 12s3-5.2 7.4-5.6c1.3-.1 2.5.2 3.5.7" />
+          <path d="M20 12s-1.2 2-3.2 3.5" />
         </symbol>
       </defs>
     </svg>
