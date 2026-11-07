@@ -117,3 +117,20 @@ export interface VehiclePageData {
   adminNote: string;
   tipNote: string;
 }
+
+export type ProfileBadge = "sky" | "green";
+
+export interface ProfileField {
+  label: string;
+  value: string;
+  badge?: ProfileBadge;
+}
+
+export interface DriverProfile {
+  name: string;
+  initial: string;
+  meta: string;
+  fields: SummaryItem[];
+  licenseNote: string;
+  licenseFields: ProfileField[];
+}

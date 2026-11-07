@@ -13,7 +13,9 @@ export type IconName =
   | "pin"
   | "map"
   | "copy"
-  | "alert";
+  | "alert"
+  | "lock"
+  | "logout";
 
 export function Sprite() {
   return (
@@ -106,6 +108,18 @@ export function Sprite() {
         <symbol id="i-alert" viewBox="0 0 24 24" className="icon-sym">
           <path d="M12 4 21 19.5H3L12 4Z" />
           <path d="M12 10v4.2M12 16.8h.01" />
+        </symbol>
+
+        <symbol id="i-lock" viewBox="0 0 24 24" className="icon-sym">
+          <rect x="5" y="10.5" width="14" height="9.5" rx="2.5" />
+          <path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" />
+          <path d="M12 14.5v2" />
+        </symbol>
+
+        <symbol id="i-logout" viewBox="0 0 24 24" className="icon-sym">
+          <path d="M14 4.5H7A2.5 2.5 0 0 0 4.5 7v10A2.5 2.5 0 0 0 7 19.5h7" />
+          <path d="M10.5 12H20" />
+          <path d="m16.5 8.5 3.5 3.5-3.5 3.5" />
         </symbol>
       </defs>
     </svg>

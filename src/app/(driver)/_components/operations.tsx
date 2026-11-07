@@ -107,8 +107,8 @@ export function Operations() {
 
             <ul className="mt-[17px] grid gap-3">
               <li>
-                <a
-                  href="#"
+                <Link
+                  href="/ho-so"
                   className="flex min-h-[62px] items-center gap-[13px] rounded-[10px] border border-line-soft bg-canvas px-[15px] py-3 transition-colors hover:border-[#cfe6f6] hover:bg-sky-50"
                 >
                   <span className="grid h-11 w-11 flex-none place-items-center rounded-xl bg-emerald-50 text-emerald-600 shadow-[inset_0_0_0_1px_rgba(5,150,105,0.16)]">
@@ -128,7 +128,7 @@ export function Operations() {
                     name="arrow-right"
                     className="ml-auto h-4 w-4 flex-none text-slate-400"
                   />
-                </a>
+                </Link>
               </li>
             </ul>
           </div>

@@ -10,7 +10,7 @@ import { Icon } from "@/components/ui/icon";
 const navItems = [
   { label: "Tổng quan", href: "/" },
   { label: "Xe được giao", href: "/xe" },
-  { label: "Hồ sơ", href: "#" },
+  { label: "Hồ sơ", href: "/ho-so" },
 ] as const;
 
 type NavItem = { label: string; href: string; active: boolean };
@@ -155,8 +155,8 @@ export function DriverHeader() {
         </nav>
 
         <div className="flex items-center gap-[18px]">
-          <a
-            href="#"
+          <Link
+            href="/ho-so"
             className="inline-flex min-h-11 items-center gap-2.5 rounded-full border border-line bg-white py-1 pl-[5px] pr-3 transition-[background-color,border-color,box-shadow] hover:border-sky-300 hover:bg-sky-50 hover:shadow-sm max-[900px]:gap-0 max-[900px]:p-[5px]"
             aria-label="Hồ sơ tài xế Anh Minh"
           >
@@ -174,7 +174,7 @@ export function DriverHeader() {
                 Tài xế
               </small>
             </span>
-          </a>
+          </Link>
 
           <button
             type="button"
