@@ -123,7 +123,7 @@ export function DriverHeader() {
           : "border-b border-transparent bg-[rgba(247,250,253,0.72)]"
       }`}
     >
-      <div className="mx-auto flex min-h-[70px] w-full max-w-[1240px] items-center justify-between gap-6 px-4 md:min-h-[78px] md:px-5">
+      <div className="mx-auto flex min-h-[70px] w-full max-w-[1240px] items-center justify-between gap-6 px-4 min-[769px]:min-h-[78px] min-[769px]:px-5">
         <Link
           href="/"
           className="inline-flex flex-none items-center gap-2.5 font-heading text-[21px] font-extrabold tracking-[-0.02em] text-ink max-[400px]:text-[19px]"
@@ -157,7 +157,7 @@ export function DriverHeader() {
         <div className="flex items-center gap-[18px]">
           <Link
             href="/ho-so"
-            className="inline-flex min-h-11 items-center gap-2.5 rounded-full border border-line bg-white py-1 pl-[5px] pr-3 transition-[background-color,border-color,box-shadow] hover:border-sky-300 hover:bg-sky-50 hover:shadow-sm max-[900px]:gap-0 max-[900px]:p-[5px]"
+            className="inline-flex min-h-11 items-center gap-0 rounded-full border border-line bg-white p-[5px] transition-[background-color,border-color,box-shadow] hover:border-sky-300 hover:bg-sky-50 hover:shadow-sm min-[901px]:gap-2.5 min-[901px]:py-1 min-[901px]:pl-[5px] min-[901px]:pr-3"
             aria-label="Hồ sơ tài xế Anh Minh"
           >
             <span
@@ -166,7 +166,7 @@ export function DriverHeader() {
             >
               M
             </span>
-            <span className="flex min-w-0 flex-col leading-[1.15] max-[900px]:hidden">
+            <span className="hidden min-w-0 flex-col leading-[1.15] min-[901px]:flex">
               <strong className="font-heading text-[13px] font-bold text-ink">
                 Anh Minh
               </strong>

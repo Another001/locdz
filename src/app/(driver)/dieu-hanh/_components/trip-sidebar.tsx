@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { Icon } from "@/components/ui/icon";
 import { operateTrip } from "@/lib/mock/operate";
 
@@ -37,13 +39,13 @@ export function TripSidebar() {
         </h2>
 
         <div className="mt-3 grid gap-2.5">
-          <a
-            href="#"
+          <Link
+            href="/chuyen"
             className="inline-flex h-12 w-full items-center justify-center gap-[9px] rounded-xl border border-line bg-white text-[14.5px] font-bold leading-none text-ink transition-colors hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700"
           >
             <Icon name="alert" className="h-[18px] w-[18px]" />
             Báo sự cố
-          </a>
+          </Link>
 
           <button
             type="button"

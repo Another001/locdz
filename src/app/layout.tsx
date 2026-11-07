@@ -28,7 +28,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="vi" className={`${heading.variable} ${body.variable}`}>
-      <body className="min-h-dvh bg-canvas font-body text-slate-600 antialiased">
+      <body className="min-h-dvh bg-canvas font-body leading-[1.65] text-slate-600 antialiased">
         <a
           href="#main"
           className="sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[200] focus:not-sr-only focus:rounded-[10px] focus:bg-navy-800 focus:px-[18px] focus:py-3 focus:text-sm focus:font-semibold focus:text-white"

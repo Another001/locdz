@@ -5,7 +5,7 @@ export default function DriverOverviewPage() {
   return (
     <main id="main">
       <section className="pb-14 pt-9 min-[768px]:pb-[84px] min-[768px]:pt-14">
-        <div className="mx-auto w-full max-w-[1240px] px-4 md:px-5">
+        <div className="mx-auto w-full max-w-[1240px] px-4 min-[769px]:px-5">
           <div className="max-w-[720px]">
             <span className="inline-flex items-center gap-[9px] text-[11px] font-bold uppercase tracking-[0.14em] text-sky-700">
               <span

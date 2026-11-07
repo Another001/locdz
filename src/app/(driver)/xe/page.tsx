@@ -13,7 +13,7 @@ export default function VehiclePage() {
   return (
     <main id="main">
       <div className="pb-[clamp(56px,6vw,88px)] pt-[clamp(32px,4vw,56px)]">
-        <div className="mx-auto w-full max-w-[1240px] px-4 md:px-5">
+        <div className="mx-auto w-full max-w-[1240px] px-4 min-[769px]:px-5">
           <header className="border-b border-line-soft pb-5">
             <span className="inline-flex items-center gap-[9px] text-[11px] font-bold uppercase tracking-[0.14em] text-sky-700">
               <span

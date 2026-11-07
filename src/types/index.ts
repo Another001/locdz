@@ -134,3 +134,67 @@ export interface DriverProfile {
   licenseNote: string;
   licenseFields: ProfileField[];
 }
+
+export type TripStopKind = "start" | "end";
+
+export interface TripRoutePoint {
+  time: string;
+  name: string;
+  address: string;
+  kind: TripStopKind;
+}
+
+export interface TripDetailStop {
+  id: string;
+  name: string;
+  time: string;
+  detail: string;
+  kind: TripStopKind;
+}
+
+export interface TripDetailPassenger {
+  id: string;
+  initial: string;
+  name: string;
+  phone: string;
+  phoneRaw: string;
+  picked: boolean;
+  paid: boolean;
+  pickup: string;
+  dropoff: string;
+}
+
+export interface TripDetailVehicle {
+  name: string;
+  plate: string;
+  meta: string;
+}
+
+export type AssignmentStepState = "done" | "current" | "upcoming";
+
+export interface AssignmentStep {
+  label: string;
+  state: AssignmentStepState;
+}
+
+export interface TripDetailAssignment {
+  label: string;
+  steps: AssignmentStep[];
+  hint: string;
+}
+
+export interface TripDetail {
+  code: string;
+  when: string;
+  route: string;
+  statusLabel: string;
+  departTime: string;
+  totalSeats: number;
+  routePoints: TripRoutePoint[];
+  stats: SummaryItem[];
+  vehicle: TripDetailVehicle;
+  stops: TripDetailStop[];
+  passengers: TripDetailPassenger[];
+  summary: SummaryItem[];
+  assignment: TripDetailAssignment;
+}
