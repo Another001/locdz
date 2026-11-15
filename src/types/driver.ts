@@ -153,3 +153,33 @@ export interface DriverVehicleResponse {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface DriverVehicleDocument {
+  id: string;
+  type: string;
+  documentNumber: string;
+  issuer: string;
+  description: string;
+  issuedOn: string;
+  expiresOn: string;
+  status: string;
+  updatedAt: string;
+}
+
+export interface DriverVehicleRecentTrip {
+  trip: {
+    id: string;
+    tripCode: string;
+    status: string;
+    routeName?: string;
+    departureAt?: string;
+    expectedArrivalAt?: string;
+  };
+  vehicle: {
+    id: string;
+    plateNumber: string;
+  };
+  assignmentStatus: string;
+  passengerCount: number;
+  passengers: unknown[];
+}

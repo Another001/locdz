@@ -1,5 +1,6 @@
-import { vehiclePage } from "@/lib/mock/vehicle";
+"use client";
 
+import { useVehicle } from "./_hooks/use-vehicle";
 import { VehicleDocuments } from "./_components/vehicle-documents";
 import { VehicleInfo } from "./_components/vehicle-info";
 import { VehicleTrips } from "./_components/vehicle-trips";
@@ -10,6 +11,17 @@ const PANEL_TITLE =
   "font-heading text-[clamp(1.1rem,1.7vw,1.3rem)] font-extrabold leading-tight tracking-[-0.02em] text-ink";
 
 export default function VehiclePage() {
+  const {
+    vehicle,
+    documents,
+    documentsUpdatedAt,
+    trips,
+    adminNote,
+    tipNote,
+    loading,
+    error,
+  } = useVehicle();
+
   return (
     <main id="main">
       <div className="pb-[clamp(56px,6vw,88px)] pt-[clamp(32px,4vw,56px)]">
@@ -27,11 +39,20 @@ export default function VehiclePage() {
             </h1>
           </header>
 
+          {error ? (
+            <div className="mt-6 rounded-[14px] border border-red-100 bg-red-50 px-4 py-3 text-[13px] text-red-800">
+              {error}
+            </div>
+          ) : null}
+
           <div className="mt-6 grid grid-cols-1 items-start gap-[clamp(20px,3vw,32px)] min-[1025px]:grid-cols-[minmax(0,1fr)_minmax(0,320px)]">
             <div className="grid gap-[clamp(18px,2.4vw,24px)]">
-              <VehicleInfo />
-              <VehicleDocuments />
-              <VehicleTrips />
+              <VehicleInfo vehicle={vehicle} adminNote={adminNote} />
+              <VehicleDocuments
+                documents={documents}
+                documentsUpdatedAt={documentsUpdatedAt}
+              />
+              <VehicleTrips trips={trips} />
             </div>
 
             <aside className="grid gap-[clamp(18px,2.4vw,24px)] min-[1025px]:sticky min-[1025px]:top-[94px]">
@@ -40,7 +61,7 @@ export default function VehiclePage() {
                   Lưu ý
                 </h2>
                 <p className="mt-[18px] rounded-[8px] border-l-[3px] border-sky-500 bg-sky-50 px-3.5 py-3 text-[12.5px] leading-[1.6] text-slate-700">
-                  {vehiclePage.tipNote}
+                  {tipNote}
                 </p>
               </section>
             </aside>

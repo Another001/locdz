@@ -1,5 +1,7 @@
 import type {
   DriverProfileResponse,
+  DriverVehicleDocument,
+  DriverVehicleRecentTrip,
   DriverVehicleResponse,
   UpdateDriverProfileRequest,
 } from "@/types/driver";
@@ -88,4 +90,46 @@ export async function fetchDriverVehicle(): Promise<DriverVehicleResponse> {
   }
 
   return data as DriverVehicleResponse;
+}
+
+export async function fetchDriverVehicleDocuments(): Promise<
+  DriverVehicleDocument[]
+> {
+  const body = await request<{ wsResponse?: unknown }>(
+    "/api/driver/vehicle/documents",
+    { method: "GET" }
+  );
+
+  const wsResponse = body?.wsResponse;
+  const data = Array.isArray(wsResponse) ? wsResponse : wsResponse;
+
+  if (!data || !Array.isArray(data)) {
+    throw new DriverProfileApiError(
+      "Không tìm thấy dữ liệu giấy tờ xe.",
+      400
+    );
+  }
+
+  return data as DriverVehicleDocument[];
+}
+
+export async function fetchDriverVehicleRecentTrips(): Promise<
+  DriverVehicleRecentTrip[]
+> {
+  const body = await request<{ wsResponse?: unknown }>(
+    "/api/driver/vehicle/trips/recent",
+    { method: "GET" }
+  );
+
+  const wsResponse = body?.wsResponse;
+  const data = Array.isArray(wsResponse) ? wsResponse : wsResponse;
+
+  if (!data || !Array.isArray(data)) {
+    throw new DriverProfileApiError(
+      "Không tìm thấy dữ liệu lịch sử chuyến.",
+      400
+    );
+  }
+
+  return data as DriverVehicleRecentTrip[];
 }

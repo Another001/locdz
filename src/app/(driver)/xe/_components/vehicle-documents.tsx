@@ -1,4 +1,3 @@
-import { vehiclePage } from "@/lib/mock/vehicle";
 import type { VehicleDocument } from "@/types";
 
 const PANEL =
@@ -44,7 +43,15 @@ function DocumentItem({ document }: { document: VehicleDocument }) {
   );
 }
 
-export function VehicleDocuments() {
+interface VehicleDocumentsProps {
+  documents: VehicleDocument[];
+  documentsUpdatedAt: string;
+}
+
+export function VehicleDocuments({
+  documents,
+  documentsUpdatedAt,
+}: VehicleDocumentsProps) {
   return (
     <section aria-labelledby="txe-doc-title" className={PANEL}>
       <div className="mb-4 flex flex-wrap items-baseline justify-between gap-x-3.5 gap-y-1.5">
@@ -52,12 +59,12 @@ export function VehicleDocuments() {
           Giấy tờ &amp; bảo hiểm
         </h2>
         <span className="text-[11.5px] font-semibold text-slate-500">
-          Cập nhật {vehiclePage.documentsUpdatedAt}
+          Cập nhật {documentsUpdatedAt}
         </span>
       </div>
 
       <ul className="grid list-none gap-2.5">
-        {vehiclePage.documents.map((document) => (
+        {documents.map((document) => (
           <DocumentItem key={document.id} document={document} />
         ))}
       </ul>

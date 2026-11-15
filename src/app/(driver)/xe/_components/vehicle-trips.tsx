@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 import { Icon } from "@/components/ui/icon";
-import { vehiclePage } from "@/lib/mock/vehicle";
 import type { VehicleTrip } from "@/types";
 
 const PANEL =
@@ -42,7 +41,11 @@ function TripItem({ trip }: { trip: VehicleTrip }) {
   );
 }
 
-export function VehicleTrips() {
+interface VehicleTripsProps {
+  trips: VehicleTrip[];
+}
+
+export function VehicleTrips({ trips }: VehicleTripsProps) {
   return (
     <section aria-labelledby="txe-trips-title" className={PANEL}>
       <div className="mb-4 flex flex-wrap items-baseline justify-between gap-x-3.5 gap-y-1.5">
@@ -59,7 +62,7 @@ export function VehicleTrips() {
       </div>
 
       <ul className="grid list-none gap-2.5">
-        {vehiclePage.trips.map((trip) => (
+        {trips.map((trip) => (
           <TripItem key={trip.id} trip={trip} />
         ))}
       </ul>
