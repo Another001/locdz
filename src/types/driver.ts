@@ -114,3 +114,42 @@ export interface DriverCollectPaymentResponse {
   passengerTripStatus: string;
   createdAt: string;
 }
+
+export interface DriverProfileResponse {
+  id: string;
+  companyId: string;
+  companyName: string;
+  userId: string;
+  fullName: string;
+  phone: string;
+  email: string;
+  employeeCode: string;
+  licenseNumber: string;
+  licenseClass: string;
+  licenseExpiresOn: string;
+  status: string;
+}
+
+export interface UpdateDriverProfileRequest {
+  companyId?: string;
+  employeeCode?: string;
+  licenseNumber?: string;
+  licenseClass?: string;
+  licenseExpiresOn?: string;
+}
+
+export interface DriverVehicleResponse {
+  id: string;
+  companyId: string;
+  plateNumber: string;
+  vehicleModel: string;
+  passengerCapacity: number;
+  inspectionExpiresOn: string;
+  vehicleType: string;
+  manufacturingYear: number;
+  fuelType: string;
+  color: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}

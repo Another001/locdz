@@ -1,5 +1,5 @@
 import { Icon } from "@/components/ui/icon";
-import { driverProfile } from "@/lib/mock/profile";
+import type { DriverProfile } from "@/types";
 
 import { ReadonlyFields } from "./readonly-fields";
 
@@ -8,7 +8,7 @@ const PANEL =
 const PANEL_TITLE =
   "font-heading text-[clamp(1.1rem,1.7vw,1.3rem)] font-extrabold leading-tight tracking-[-0.02em] text-ink";
 
-export function LicensePanel() {
+export function LicensePanel({ data }: { data: DriverProfile }) {
   return (
     <section aria-labelledby="ths-license-title" className={PANEL}>
       <div className="mb-4 flex flex-wrap items-baseline justify-between gap-x-3.5 gap-y-1.5">
@@ -17,11 +17,11 @@ export function LicensePanel() {
         </h2>
         <span className="inline-flex items-center gap-[5px] text-[11.5px] font-semibold text-slate-500">
           <Icon name="lock" className="h-[13px] w-[13px]" />
-          {driverProfile.licenseNote}
+          {data.licenseNote}
         </span>
       </div>
 
-      <ReadonlyFields fields={driverProfile.licenseFields} />
+      <ReadonlyFields fields={data.licenseFields} />
     </section>
   );
 }

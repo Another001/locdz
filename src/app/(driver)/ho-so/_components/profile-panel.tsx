@@ -1,4 +1,4 @@
-import { driverProfile } from "@/lib/mock/profile";
+import type { DriverProfile } from "@/types";
 
 import { ReadonlyFields } from "./readonly-fields";
 
@@ -7,7 +7,7 @@ const PANEL =
 const PANEL_TITLE =
   "font-heading text-[clamp(1.1rem,1.7vw,1.3rem)] font-extrabold leading-tight tracking-[-0.02em] text-ink";
 
-export function ProfilePanel() {
+export function ProfilePanel({ data }: { data: DriverProfile }) {
   return (
     <section aria-labelledby="ths-profile-title" className={PANEL}>
       <div className="mb-4 flex flex-wrap items-baseline justify-between gap-x-3.5 gap-y-1.5">
@@ -21,20 +21,20 @@ export function ProfilePanel() {
           aria-hidden="true"
           className="grid h-[68px] w-[68px] flex-none place-items-center rounded-full bg-navy-800 font-heading text-[26px] font-extrabold leading-none tracking-[-0.02em] text-white max-[640px]:h-14 max-[640px]:w-14 max-[640px]:text-[22px]"
         >
-          {driverProfile.initial}
+          {data.initial}
         </span>
 
         <div className="min-w-0">
           <strong className="block font-heading text-xl font-extrabold leading-[1.25] tracking-[-0.02em] text-ink max-[640px]:text-lg">
-            {driverProfile.name}
+            {data.name}
           </strong>
           <span className="mt-1 block text-[13px] leading-[1.5] text-slate-500">
-            {driverProfile.meta}
+            {data.meta}
           </span>
         </div>
       </div>
 
-      <ReadonlyFields fields={driverProfile.fields} />
+      <ReadonlyFields fields={data.fields} />
     </section>
   );
 }
