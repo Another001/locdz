@@ -8,8 +8,12 @@ import { FORBIDDEN_PATH, LOGIN_PATH } from "./paths";
 import { hasPermission } from "./permissions";
 import { userFromAccessToken } from "./token";
 
+export async function getAccessToken(): Promise<string | null> {
+  return (await cookies()).get(ACCESS_COOKIE)?.value ?? null;
+}
+
 export async function getSession(): Promise<AuthUser | null> {
-  const token = (await cookies()).get(ACCESS_COOKIE)?.value;
+  const token = await getAccessToken();
 
   return userFromAccessToken(token ?? "");
 }

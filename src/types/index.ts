@@ -1,4 +1,12 @@
-export type TripStatus = "chua-nhan" | "da-nhan" | "chuan-bi" | "co-mat";
+export type TripStatus =
+  | "chua-nhan"
+  | "da-nhan"
+  | "chuan-bi"
+  | "co-mat"
+  | "dang-chay"
+  | "hoan-thanh"
+  | "da-huy"
+  | "khac";
 
 export type TripPeriod = "Sáng" | "Trưa" | "Chiều" | "Tối";
 
@@ -12,6 +20,9 @@ export interface Trip {
   vehicle: string;
   status: TripStatus;
   lateMinutes?: number;
+  tripCode?: string;
+  assignmentStatus?: string;
+  driverTripStatus?: string;
 }
 
 export interface DaySchedule {

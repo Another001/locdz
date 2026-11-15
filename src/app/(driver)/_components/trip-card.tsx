@@ -23,10 +23,79 @@ const STATUS: Record<
     label: "Đã có mặt",
     className: "bg-emerald-100 text-emerald-700",
   },
+  "dang-chay": {
+    label: "Đang chạy",
+    className: "bg-indigo-100 text-indigo-700",
+  },
+  "hoan-thanh": {
+    label: "Hoàn thành",
+    className: "bg-slate-100 text-slate-600",
+  },
+  "da-huy": {
+    label: "Đã huỷ / từ chối",
+    className: "bg-red-50 text-red-600",
+  },
+  khac: {
+    label: "Đã phân công",
+    className: "bg-slate-200 text-slate-600",
+  },
 };
 
-export function TripCard({ trip }: { trip: Trip }) {
+type AssignmentStatus = "PREPARING" | "ARRIVED";
+
+interface TripCardProps {
+  trip: Trip;
+  busy?: boolean;
+  disabled?: boolean;
+  onAccept?: (trip: Trip) => void;
+  onReject?: (trip: Trip) => void;
+  onAssignmentStatus?: (trip: Trip, status: AssignmentStatus) => void;
+  onTripStatus?: (
+    trip: Trip,
+    status: "IN_PROGRESS" | "COMPLETED"
+  ) => void;
+}
+
+function assignmentFromStatus(trip: Trip): string {
+  if (trip.assignmentStatus) return trip.assignmentStatus;
+
+  switch (trip.status) {
+    case "chua-nhan":
+      return "ASSIGNED";
+    case "da-nhan":
+      return "ACCEPTED";
+    case "chuan-bi":
+      return "PREPARING";
+    case "co-mat":
+      return "ARRIVED";
+    case "dang-chay":
+      return "IN_PROGRESS";
+    case "hoan-thanh":
+      return "COMPLETED";
+    case "da-huy":
+      return "REJECTED";
+    default:
+      return "";
+  }
+}
+
+export function TripCard({
+  trip,
+  busy = false,
+  disabled = false,
+  onAccept,
+  onReject,
+  onAssignmentStatus,
+  onTripStatus,
+}: TripCardProps) {
   const status = STATUS[trip.status];
+  const assignment = assignmentFromStatus(trip);
+  const hasActions =
+    (assignment === "ASSIGNED" && (onAccept || onReject)) ||
+    (assignment === "ACCEPTED" && onAssignmentStatus) ||
+    (assignment === "PREPARING" && onAssignmentStatus) ||
+    (assignment === "ARRIVED" && onTripStatus) ||
+    (assignment === "IN_PROGRESS" && onTripStatus);
 
   return (
     <div className="grid gap-2.5">
@@ -46,23 +115,29 @@ export function TripCard({ trip }: { trip: Trip }) {
         <div className="grid min-w-0 gap-1">
           <div className="flex flex-nowrap items-center gap-1.5 whitespace-nowrap font-heading text-[13px] font-bold text-ink max-[400px]:text-[12.5px]">
             <strong>{trip.from}</strong>
-            <Icon
-              name="arrow-right"
-              className="h-3.5 w-3.5 flex-none text-slate-400"
-            />
-            <strong>{trip.to}</strong>
+            {trip.to ? (
+              <>
+                <Icon
+                  name="arrow-right"
+                  className="h-3.5 w-3.5 flex-none text-slate-400"
+                />
+                <strong>{trip.to}</strong>
+              </>
+            ) : null}
           </div>
 
           <div className="mt-1 flex flex-wrap gap-x-2.5 gap-y-1">
             <span className="text-[10.5px] font-semibold leading-normal text-slate-600">
               {trip.passengers} khách
             </span>
-            <span className="text-[10.5px] font-semibold leading-normal text-slate-600">
-              {trip.vehicle}
-            </span>
+            {trip.vehicle ? (
+              <span className="text-[10.5px] font-semibold leading-normal text-slate-600">
+                {trip.vehicle}
+              </span>
+            ) : null}
           </div>
 
-          <div className="mt-1.5 flex flex-wrap gap-x-1.5 gap-y-1">
+          <div className="mt-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-1">
             <span
               className={`inline-flex items-center rounded-full px-[7px] py-[3px] text-[10px] font-bold whitespace-nowrap ${status.className}`}
             >
@@ -71,6 +146,11 @@ export function TripCard({ trip }: { trip: Trip }) {
             {trip.lateMinutes ? (
               <span className="inline-flex items-center rounded-full bg-red-50 px-[7px] py-[3px] text-[10px] font-bold whitespace-nowrap text-red-600">
                 Trễ {trip.lateMinutes}&apos;
+              </span>
+            ) : null}
+            {trip.tripCode ? (
+              <span className="text-[10px] font-semibold text-slate-500">
+                {trip.tripCode}
               </span>
             ) : null}
           </div>
@@ -82,14 +162,80 @@ export function TripCard({ trip }: { trip: Trip }) {
         />
       </Link>
 
-      {trip.status === "chua-nhan" ? (
-        <button
-          type="button"
-          className="inline-flex h-[42px] min-h-11 items-center justify-center gap-[9px] justify-self-start rounded-[11px] bg-sky-700 px-[18px] text-[13.5px] font-bold leading-none text-white shadow-[0_10px_24px_-14px_rgba(3,105,161,0.9)] transition-colors hover:bg-sky-800 max-[640px]:w-full max-[640px]:justify-self-stretch"
-        >
-          <Icon name="check" className="h-[18px] w-[18px]" />
-          Xác nhận nhận chuyến
-        </button>
+      {hasActions ? (
+        <div className="flex flex-wrap gap-2">
+          {assignment === "ASSIGNED" && onAccept ? (
+            <button
+              type="button"
+              disabled={busy || disabled}
+              onClick={() => onAccept(trip)}
+              className="inline-flex h-[42px] min-h-11 items-center justify-center gap-[9px] rounded-[11px] bg-sky-700 px-[18px] text-[13.5px] font-bold leading-none text-white shadow-[0_10px_24px_-14px_rgba(3,105,161,0.9)] transition-colors hover:bg-sky-800 disabled:opacity-60 max-[640px]:w-full"
+            >
+              <Icon name="check" className="h-[18px] w-[18px]" />
+              {busy ? "Đang xử lý..." : "Xác nhận nhận chuyến"}
+            </button>
+          ) : null}
+
+          {assignment === "ASSIGNED" && onReject ? (
+            <button
+              type="button"
+              disabled={busy || disabled}
+              onClick={() => onReject(trip)}
+              className="inline-flex h-[42px] min-h-11 items-center justify-center gap-[9px] rounded-[11px] border border-red-200 bg-red-50 px-[18px] text-[13.5px] font-bold leading-none text-red-600 transition-colors hover:border-red-300 hover:bg-red-100 disabled:opacity-60 max-[640px]:w-full"
+            >
+              <Icon name="close" className="h-[18px] w-[18px]" />
+              Từ chối chuyến
+            </button>
+          ) : null}
+
+          {assignment === "ACCEPTED" && onAssignmentStatus ? (
+            <button
+              type="button"
+              disabled={busy || disabled}
+              onClick={() => onAssignmentStatus(trip, "PREPARING")}
+              className="inline-flex h-[42px] min-h-11 items-center justify-center gap-[9px] rounded-[11px] bg-sky-700 px-[18px] text-[13.5px] font-bold leading-none text-white shadow-[0_10px_24px_-14px_rgba(3,105,161,0.9)] transition-colors hover:bg-sky-800 disabled:opacity-60 max-[640px]:w-full"
+            >
+              <Icon name="shield" className="h-[18px] w-[18px]" />
+              {busy ? "Đang xử lý..." : "Bắt đầu chuẩn bị"}
+            </button>
+          ) : null}
+
+          {assignment === "PREPARING" && onAssignmentStatus ? (
+            <button
+              type="button"
+              disabled={busy || disabled}
+              onClick={() => onAssignmentStatus(trip, "ARRIVED")}
+              className="inline-flex h-[42px] min-h-11 items-center justify-center gap-[9px] rounded-[11px] bg-sky-700 px-[18px] text-[13.5px] font-bold leading-none text-white shadow-[0_10px_24px_-14px_rgba(3,105,161,0.9)] transition-colors hover:bg-sky-800 disabled:opacity-60 max-[640px]:w-full"
+            >
+              <Icon name="pin" className="h-[18px] w-[18px]" />
+              {busy ? "Đang xử lý..." : "Xác nhận đã có mặt"}
+            </button>
+          ) : null}
+
+          {assignment === "ARRIVED" && onTripStatus ? (
+            <button
+              type="button"
+              disabled={busy || disabled}
+              onClick={() => onTripStatus(trip, "IN_PROGRESS")}
+              className="inline-flex h-[42px] min-h-11 items-center justify-center gap-[9px] rounded-[11px] bg-sky-700 px-[18px] text-[13.5px] font-bold leading-none text-white shadow-[0_10px_24px_-14px_rgba(3,105,161,0.9)] transition-colors hover:bg-sky-800 disabled:opacity-60 max-[640px]:w-full"
+            >
+              <Icon name="car" className="h-[18px] w-[18px]" />
+              {busy ? "Đang xử lý..." : "Bắt đầu chuyến"}
+            </button>
+          ) : null}
+
+          {assignment === "IN_PROGRESS" && onTripStatus ? (
+            <button
+              type="button"
+              disabled={busy || disabled}
+              onClick={() => onTripStatus(trip, "COMPLETED")}
+              className="inline-flex h-[42px] min-h-11 items-center justify-center gap-[9px] rounded-[11px] bg-emerald-600 px-[18px] text-[13.5px] font-bold leading-none text-white shadow-[0_10px_24px_-14px_rgba(5,150,105,0.9)] transition-colors hover:bg-emerald-700 disabled:opacity-60 max-[640px]:w-full"
+            >
+              <Icon name="check-circle" className="h-[18px] w-[18px]" />
+              {busy ? "Đang xử lý..." : "Hoàn thành chuyến"}
+            </button>
+          ) : null}
+        </div>
       ) : null}
     </div>
   );
