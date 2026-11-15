@@ -1,4 +1,4 @@
-import { Icon } from "@/components/ui/icon";
+import { LogoutButton } from "@/components/auth/logout-button";
 
 import { LicensePanel } from "./_components/license-panel";
 import { ProfilePanel } from "./_components/profile-panel";
@@ -32,13 +32,7 @@ export default function DriverProfilePage() {
               <LicensePanel />
 
               <div className="mt-3 flex flex-col items-center gap-3 border-t border-dashed border-line pt-6">
-                <button
-                  type="button"
-                  className="flex min-h-12 w-full max-w-[320px] items-center justify-center gap-2 rounded-[14px] border border-red-200 bg-red-50 text-[14.5px] font-semibold text-red-600 transition-colors hover:border-red-300 hover:bg-red-100 hover:text-red-700"
-                >
-                  <Icon name="logout" className="h-[18px] w-[18px]" />
-                  Đăng xuất khỏi thiết bị này
-                </button>
+                <LogoutButton />
               </div>
             </div>
           </div>

@@ -6,6 +6,8 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import { Icon } from "@/components/ui/icon";
+import { getCurrentUser } from "@/lib/api/auth-client";
+import type { AuthUser } from "@/types/auth";
 
 const navItems = [
   { label: "Tổng quan", href: "/" },
@@ -14,6 +16,14 @@ const navItems = [
 ] as const;
 
 type NavItem = { label: string; href: string; active: boolean };
+
+const ROLE_LABELS: Record<string, string> = {
+  driver: "Tài xế",
+  dispatcher: "Điều phối",
+  admin: "Quản trị",
+  customer: "Khách hàng",
+  staff: "Nhân viên",
+};
 
 function NavLink({
   item,
@@ -70,11 +80,36 @@ export function DriverHeader() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const headerRef = useRef<HTMLElement>(null);
   const nav = navItems.map((item) => ({
     ...item,
     active: item.href === pathname,
   }));
+  const showUser = pathname !== "/dang-nhap";
+  const displayName = (showUser ? user?.name : null) || "Tài xế";
+  const initial = displayName.trim().charAt(0).toUpperCase() || "T";
+  const roleLabel = !showUser
+    ? "Tài xế"
+    : user?.roles.includes("driver")
+      ? "Tài xế"
+      : ROLE_LABELS[user?.roles[0] ?? ""] ?? "Tài xế";
+
+  useEffect(() => {
+    if (pathname === "/dang-nhap") return;
+
+    let cancelled = false;
+
+    getCurrentUser()
+      .then((current) => {
+        if (!cancelled) setUser(current);
+      })
+      .catch(() => undefined);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [pathname]);
 
   useEffect(() => {
     const update = () => setScrolled(window.scrollY > 8);
@@ -158,20 +193,20 @@ export function DriverHeader() {
           <Link
             href="/ho-so"
             className="inline-flex min-h-11 items-center gap-0 rounded-full border border-line bg-white p-[5px] transition-[background-color,border-color,box-shadow] hover:border-sky-300 hover:bg-sky-50 hover:shadow-sm min-[901px]:gap-2.5 min-[901px]:py-1 min-[901px]:pl-[5px] min-[901px]:pr-3"
-            aria-label="Hồ sơ tài xế Anh Minh"
+            aria-label={`Hồ sơ ${displayName}`}
           >
             <span
               className="grid h-[34px] w-[34px] flex-none place-items-center rounded-full bg-navy-800 font-heading text-sm font-extrabold leading-none text-white"
               aria-hidden="true"
             >
-              M
+              {initial}
             </span>
             <span className="hidden min-w-0 flex-col leading-[1.15] min-[901px]:flex">
-              <strong className="font-heading text-[13px] font-bold text-ink">
-                Anh Minh
+              <strong className="max-w-[160px] truncate font-heading text-[13px] font-bold text-ink">
+                {displayName}
               </strong>
               <small className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.08em] text-slate-500">
-                Tài xế
+                {roleLabel}
               </small>
             </span>
           </Link>
