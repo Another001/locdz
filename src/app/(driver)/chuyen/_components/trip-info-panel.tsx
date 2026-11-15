@@ -1,12 +1,28 @@
 import { Icon } from "@/components/ui/icon";
-import { tripDetail } from "@/lib/mock/trip-detail";
+import type {
+  SummaryItem,
+  TripDetailVehicle,
+  TripRoutePoint,
+} from "@/types";
 
 const PANEL =
   "rounded-[20px] border border-line bg-surface p-[clamp(20px,2.6vw,28px)] shadow-xs";
 const PANEL_TITLE =
   "font-heading text-[clamp(1.15rem,1.8vw,1.35rem)] font-extrabold leading-[1.2] tracking-[-0.02em] text-ink";
 
-export function TripInfoPanel() {
+interface TripInfoPanelProps {
+  departTime: string;
+  routePoints: TripRoutePoint[];
+  stats: SummaryItem[];
+  vehicle: TripDetailVehicle;
+}
+
+export function TripInfoPanel({
+  departTime,
+  routePoints,
+  stats,
+  vehicle,
+}: TripInfoPanelProps) {
   return (
     <section aria-labelledby="tcd-trip-title" className={PANEL}>
       <div className="mb-[18px] flex flex-wrap items-baseline justify-between gap-x-3.5 gap-y-1.5">
@@ -14,12 +30,12 @@ export function TripInfoPanel() {
           Thông tin chuyến
         </h2>
         <span className="text-[12.5px] font-semibold text-slate-500">
-          Khởi hành {tripDetail.departTime}
+          Khởi hành {departTime}
         </span>
       </div>
 
       <div className="flex flex-col gap-[22px]">
-        {tripDetail.routePoints.map((point, index) => {
+        {routePoints.map((point, index) => {
           const start = point.kind === "start";
 
           return (
@@ -32,7 +48,7 @@ export function TripInfoPanel() {
               </span>
 
               <span className="relative flex h-full justify-center">
-                {index < tripDetail.routePoints.length - 1 ? (
+                {index < routePoints.length - 1 ? (
                   <span
                     aria-hidden="true"
                     className="absolute bottom-[-26px] left-1/2 top-[14px] w-0.5 -translate-x-1/2 bg-[repeating-linear-gradient(to_bottom,#d8e6f2_0,#d8e6f2_4px,transparent_4px,transparent_8px)]"
@@ -63,7 +79,7 @@ export function TripInfoPanel() {
       </div>
 
       <ul className="mt-5 grid grid-cols-1 gap-x-5 gap-y-3.5 border-t border-line-soft pt-[18px] min-[401px]:grid-cols-2">
-        {tripDetail.stats.map((stat) => (
+        {stats.map((stat) => (
           <li key={stat.label}>
             <span className="block text-[11px] font-bold uppercase tracking-[0.07em] text-slate-500">
               {stat.label}
@@ -85,10 +101,10 @@ export function TripInfoPanel() {
 
         <div className="min-w-0">
           <strong className="block font-heading text-[14.5px] font-bold leading-[1.35] text-ink">
-            {tripDetail.vehicle.name}
+            {vehicle.name}
           </strong>
           <span className="mt-0.5 block text-[12.5px] leading-[1.45] text-slate-500">
-            {tripDetail.vehicle.meta}
+            {vehicle.meta}
           </span>
         </div>
       </div>

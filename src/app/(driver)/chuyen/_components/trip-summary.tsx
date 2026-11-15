@@ -1,6 +1,10 @@
-import { tripDetail } from "@/lib/mock/trip-detail";
+import type { SummaryItem } from "@/types";
 
-export function TripSummary() {
+interface TripSummaryProps {
+  summary: SummaryItem[];
+}
+
+export function TripSummary({ summary }: TripSummaryProps) {
   return (
     <section
       aria-labelledby="tcd-summary-title"
@@ -14,7 +18,7 @@ export function TripSummary() {
       </h2>
 
       <dl className="mt-3.5 grid gap-2.5">
-        {tripDetail.summary.map((item) => (
+        {summary.map((item) => (
           <div
             key={item.label}
             className="flex items-baseline justify-between gap-3 border-b border-line-soft pb-2.5 last:border-b-0 last:pb-0"

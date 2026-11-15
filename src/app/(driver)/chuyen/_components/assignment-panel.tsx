@@ -1,6 +1,5 @@
 import { Icon } from "@/components/ui/icon";
-import { tripDetail } from "@/lib/mock/trip-detail";
-import type { AssignmentStepState } from "@/types";
+import type { AssignmentStepState, TripDetailAssignment } from "@/types";
 
 const PANEL =
   "rounded-[20px] border border-line bg-surface p-[clamp(20px,2.6vw,28px)] shadow-xs";
@@ -14,9 +13,17 @@ const DOT: Record<AssignmentStepState, string> = {
   upcoming: "border-slate-300 bg-surface",
 };
 
-export function AssignmentPanel() {
-  const { assignment } = tripDetail;
+interface AssignmentPanelProps {
+  assignment: TripDetailAssignment;
+  onAccept: () => void;
+  isAccepting: boolean;
+}
 
+export function AssignmentPanel({
+  assignment,
+  onAccept,
+  isAccepting,
+}: AssignmentPanelProps) {
   return (
     <section aria-labelledby="tcdLenhTitle" className={PANEL}>
       <div className="mb-[18px] flex flex-wrap items-baseline justify-between gap-x-3.5 gap-y-1.5">
@@ -72,6 +79,8 @@ export function AssignmentPanel() {
       <div className="mt-4 flex flex-wrap gap-2.5">
         <button
           type="button"
+          onClick={onAccept}
+          disabled={isAccepting}
           className="inline-flex h-12 grow items-center justify-center gap-[9px] rounded-xl bg-sky-700 px-[22px] text-sm font-bold leading-none text-white shadow-[0_10px_24px_-14px_rgba(3,105,161,0.9)] transition-colors hover:bg-sky-800 min-[481px]:grow-0"
         >
           <Icon name="check" className="h-[18px] w-[18px]" />

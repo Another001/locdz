@@ -1,5 +1,5 @@
 import { Icon } from "@/components/ui/icon";
-import { tripDetail } from "@/lib/mock/trip-detail";
+
 import type { TripDetailPassenger } from "@/types";
 
 const PANEL =
@@ -11,9 +11,17 @@ const BADGE =
 
 function PassengerCard({
   passenger,
+  onPickUp,
+  onCollectPayment,
+  isMutating,
 }: {
   passenger: TripDetailPassenger;
+  onPickUp: (ticketId: string) => void;
+  onCollectPayment: (ticketId: string, collectedAmount: number) => void;
+  isMutating: (action: string) => boolean;
 }) {
+  const isPickingUp = isMutating(`pickup-${passenger.id}`);
+  const isCollecting = isMutating(`payment-${passenger.id}`);
   return (
     <article
       className={`rounded-[14px] border px-4 py-3.5 transition-colors ${
@@ -58,7 +66,20 @@ function PassengerCard({
                 : "bg-sky-100 text-sky-700"
             }`}
           >
-            {passenger.picked ? "Đã đón" : "Chờ đón"}
+            {!passenger.picked ? (
+              <button
+                type="button"
+                onClick={() => onPickUp(passenger.id)}
+                disabled={isPickingUp}
+                className="inline-flex h-8 items-center justify-center rounded-xl border border-line bg-white px-2 text-[11px] font-medium text-slate-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Đón
+              </button>
+            ) : (
+              <span className={`${BADGE} bg-emerald-100 text-emerald-700`}>
+                Đã đón
+              </span>
+            )}
           </span>
           <span
             className={`${BADGE} ${
@@ -67,7 +88,28 @@ function PassengerCard({
                 : "bg-[#fff1e7] text-[#9a3412]"
             }`}
           >
-            {passenger.paid ? "Đã TT" : "Chưa TT"}
+            {!passenger.paid ? (
+              <button
+                type="button"
+                onClick={() => {
+                  const amount = window.prompt("Số tiền thu (VND):", "");
+                  if (amount !== null) {
+                    const val = parseInt(amount.replace(/\D/g, ""), 10);
+                    if (!isNaN(val) && val > 0) {
+                      onCollectPayment(passenger.id, val);
+                    }
+                  }
+                }}
+                disabled={isCollecting || !passenger.picked}
+                className="inline-flex h-8 items-center justify-center rounded-xl border border-line bg-white px-2 text-[11px] font-medium text-slate-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Thu tiền
+              </button>
+            ) : (
+              <span className={`${BADGE} bg-emerald-100 text-emerald-700`}>
+                Đã TT
+              </span>
+            )}
           </span>
         </div>
       </div>
@@ -86,7 +128,21 @@ function PassengerCard({
   );
 }
 
-export function TripPassengersPanel() {
+interface TripPassengersPanelProps{
+  passengers: any,
+  totalSeats: any,
+  onPickUp: any,
+  onCollectPayment: any,
+  isMutating: any,
+};
+
+export function TripPassengersPanel({
+  passengers,
+  totalSeats,
+  onPickUp,
+  onCollectPayment,
+  isMutating,
+}: TripPassengersPanelProps) {
   return (
     <section aria-labelledby="tcd-passengers-title" className={PANEL}>
       <div className="mb-[18px] flex flex-wrap items-baseline justify-between gap-x-3.5 gap-y-1.5">
@@ -94,13 +150,19 @@ export function TripPassengersPanel() {
           Hành khách
         </h2>
         <span className="text-[12.5px] font-semibold text-slate-500">
-          {tripDetail.passengers.length} / {tripDetail.totalSeats} ghế đã đặt
+          {passengers.length} / {totalSeats} ghế đã đặt
         </span>
       </div>
 
       <div className="grid gap-3">
-        {tripDetail.passengers.map((passenger) => (
-          <PassengerCard key={passenger.id} passenger={passenger} />
+        {passengers.map((passenger: any) => (
+          <PassengerCard
+            key={passenger.id}
+            passenger={passenger}
+            onPickUp={onPickUp}
+            onCollectPayment={onCollectPayment}
+            isMutating={isMutating}
+          />
         ))}
       </div>
     </section>

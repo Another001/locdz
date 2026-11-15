@@ -63,3 +63,54 @@ export interface DriverRejectTripResponse extends DriverTripStatusResponse {
   vehicle?: DriverVehicleRef;
   passengerCount?: number;
 }
+
+export type DriverIncidentType =
+  | "VEHICLE_BREAKDOWN"
+  | "TRAFFIC"
+  | "PASSENGER_NO_SHOW"
+  | "OTHER";
+
+export interface DriverIncidentRequest {
+  type: DriverIncidentType;
+  description: string;
+}
+
+export interface DriverIncidentResponse {
+  id: string;
+  tripId: string;
+  type: DriverIncidentType;
+  description: string;
+  status: string;
+  openedAt: string;
+}
+
+export interface DriverPassengerStatusRequest {
+  status: string;
+}
+
+export interface DriverPassengerStatusResponse {
+  id: string;
+  ticketCode: string;
+  status: string;
+  passengerTripStatus: string;
+}
+
+export interface DriverCollectPaymentRequest {
+  collectedAmount: number;
+}
+
+export interface DriverCollectPaymentResponse {
+  id: string;
+  ticketCode: string;
+  passengerName: string;
+  passengerPhone: string;
+  pickupAddress: string;
+  dropoffAddress: string;
+  seatCode: string;
+  fareAmount: number;
+  paymentCollected: boolean;
+  collectedAmount: number;
+  status: string;
+  passengerTripStatus: string;
+  createdAt: string;
+}

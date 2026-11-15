@@ -1,4 +1,7 @@
 import type {
+  DriverCollectPaymentResponse,
+  DriverIncidentResponse,
+  DriverPassengerStatusResponse,
   DriverRejectTripResponse,
   DriverTripStatusResponse,
   ScheduleTrip,
@@ -48,6 +51,13 @@ export async function fetchScheduleTrips(): Promise<ScheduleTrip[]> {
   return body.trips ?? [];
 }
 
+export async function fetchTripDetail(tripId: string): Promise<unknown> {
+  return request<unknown>(
+    `/api/driver/trips/${encodeURIComponent(tripId)}`,
+    { method: "GET" }
+  );
+}
+
 export function acceptScheduleTrip(
   tripId: string
 ): Promise<DriverTripStatusResponse> {
@@ -92,6 +102,48 @@ export function updateScheduleTripStatus(
     {
       method: "PATCH",
       body: JSON.stringify({ status }),
+    }
+  );
+}
+
+export function reportIncident(
+  tripId: string,
+  type: string,
+  description: string
+): Promise<DriverIncidentResponse> {
+  return request<DriverIncidentResponse>(
+    `/api/driver/trips/${encodeURIComponent(tripId)}/incidents`,
+    {
+      method: "POST",
+      body: JSON.stringify({ type, description }),
+    }
+  );
+}
+
+export function updatePassengerStatus(
+  tripId: string,
+  ticketId: string,
+  status: string
+): Promise<DriverPassengerStatusResponse> {
+  return request<DriverPassengerStatusResponse>(
+    `/api/driver/trips/${encodeURIComponent(tripId)}/passengers/${encodeURIComponent(ticketId)}/status`,
+    {
+      method: "PATCH",
+      body: JSON.stringify({ status }),
+    }
+  );
+}
+
+export function collectPassengerPayment(
+  tripId: string,
+  ticketId: string,
+  collectedAmount: number
+): Promise<DriverCollectPaymentResponse> {
+  return request<DriverCollectPaymentResponse>(
+    `/api/driver/trips/${encodeURIComponent(tripId)}/passengers/${encodeURIComponent(ticketId)}/collect-payment`,
+    {
+      method: "POST",
+      body: JSON.stringify({ collectedAmount }),
     }
   );
 }

@@ -1,5 +1,8 @@
 import type {
   DriverAssignmentStatus,
+  DriverCollectPaymentResponse,
+  DriverIncidentResponse,
+  DriverPassengerStatusResponse,
   DriverRejectTripResponse,
   DriverTripDetail,
   DriverTripListItem,
@@ -92,4 +95,55 @@ export function updateDriverTripStatus(
     token,
     fallbackMessage: "Không cập nhật được tiến trình chuyến.",
   });
+}
+
+export function reportDriverIncident(
+  token: string,
+  tripId: string,
+  type: string,
+  description: string
+): Promise<DriverIncidentResponse> {
+  return backendRequest<DriverIncidentResponse>(tripPath(tripId, "incidents"), {
+    method: "POST",
+    body: { wsRequest: { type, description } },
+    token,
+    fallbackMessage: "Không báo được sự cố.",
+  });
+}
+
+export function updateDriverPassengerStatus(
+  token: string,
+  tripId: string,
+  ticketId: string,
+  status: string
+): Promise<DriverPassengerStatusResponse> {
+  return backendRequest<DriverPassengerStatusResponse>(
+    tripPath(tripId, `passengers/${encodeURIComponent(ticketId)}/status`),
+    {
+      method: "PATCH",
+      body: { wsRequest: { status } },
+      token,
+      fallbackMessage: "Không cập nhật được trạng thái hành khách.",
+    }
+  );
+}
+
+export function collectDriverPassengerPayment(
+  token: string,
+  tripId: string,
+  ticketId: string,
+  collectedAmount: number
+): Promise<DriverCollectPaymentResponse> {
+  return backendRequest<DriverCollectPaymentResponse>(
+    tripPath(
+      tripId,
+      `passengers/${encodeURIComponent(ticketId)}/collect-payment`
+    ),
+    {
+      method: "POST",
+      body: { wsRequest: { collectedAmount } },
+      token,
+      fallbackMessage: "Không thu được tiền.",
+    }
+  );
 }

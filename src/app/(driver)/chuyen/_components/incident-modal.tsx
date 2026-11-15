@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { Icon } from "@/components/ui/icon";
+import type { DriverIncidentType } from "@/types/driver";
 
 const LABEL =
   "mb-1.5 ml-0.5 block text-[11px] font-bold uppercase tracking-[0.09em] text-slate-500";
@@ -7,12 +9,53 @@ const CONTROL =
 const BUTTON =
   "inline-flex h-12 items-center justify-center rounded-xl px-[22px] text-sm font-bold leading-none transition-colors";
 
-export function IncidentModal() {
+const INCIDENT_TYPES: { value: DriverIncidentType; label: string }[] = [
+  { value: "VEHICLE_BREAKDOWN", label: "Xe gặp sự cố" },
+  { value: "TRAFFIC", label: "Tắc đường / thời tiết" },
+  { value: "PASSENGER_NO_SHOW", label: "Khách không có mặt" },
+  { value: "OTHER", label: "Khác" },
+];
+
+interface IncidentModalProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSubmit: (type: string, description: string) => void;
+  isSubmitting: boolean;
+}
+
+export function IncidentModal({
+  open,
+  onOpenChange,
+  onSubmit,
+  isSubmitting,
+}: IncidentModalProps) {
+  const [type, setType] = useState("");
+  const [description, setDescription] = useState("");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!type || description.trim().length < 3) return;
+    onSubmit(type, description.trim());
+    setType("");
+    setDescription("");
+  };
+
+  if (!open) {
+    return (
+      <div
+        id="tcdIncidentModal"
+        hidden
+        aria-hidden="true"
+        className="fixed inset-0 z-[1000] grid place-items-center p-4"
+      />
+    );
+  }
+
   return (
     <div
       id="tcdIncidentModal"
-      hidden
-      aria-hidden="true"
+      hidden={!open}
+      aria-hidden={!open}
       className="fixed inset-0 z-[1000] grid place-items-center p-4"
     >
       <div
@@ -36,6 +79,7 @@ export function IncidentModal() {
           <button
             type="button"
             aria-label="Đóng"
+            onClick={() => onOpenChange(false)}
             className="grid h-11 w-11 flex-none place-items-center rounded-[10px] text-slate-500 transition-colors hover:bg-canvas hover:text-ink"
           >
             <Icon name="close" className="h-[18px] w-[18px]" />
@@ -46,7 +90,11 @@ export function IncidentModal() {
           Báo sự cố để admin hỗ trợ. Chuyến vẫn giữ nguyên — không tự hủy.
         </p>
 
-        <form className="mt-[18px] grid gap-3.5" noValidate>
+        <form
+          className="mt-[18px] grid gap-3.5"
+          noValidate
+          onSubmit={handleSubmit}
+        >
           <div>
             <label htmlFor="incidentType" className={LABEL}>
               Loại sự cố
@@ -57,13 +105,15 @@ export function IncidentModal() {
                 name="incidentType"
                 required
                 defaultValue=""
+                onChange={(e) => setType(e.target.value)}
                 className={`${CONTROL} h-12 appearance-none px-3.5 pr-9 text-[14.5px] font-medium`}
               >
                 <option value="">— Chọn loại sự cố —</option>
-                <option value="xe">Xe gặp sự cố</option>
-                <option value="duong">Tắc đường / thời tiết</option>
-                <option value="khach">Khách không có mặt</option>
-                <option value="khac">Khác</option>
+                {INCIDENT_TYPES.map((t) => (
+                  <option key={t.value} value={t.value}>
+                    {t.label}
+                  </option>
+                ))}
               </select>
               <span
                 aria-hidden="true"
@@ -81,6 +131,7 @@ export function IncidentModal() {
               name="incidentNote"
               rows={3}
               required
+              onChange={(e) => setDescription(e.target.value)}
               placeholder="VD: Xe nổ lốp tại Cầu Giẽ"
               className={`${CONTROL} min-h-[84px] resize-y px-3.5 py-3 text-base leading-[1.55] placeholder:text-slate-400`}
             />
@@ -89,15 +140,19 @@ export function IncidentModal() {
           <div className="mt-1 flex flex-col-reverse gap-2.5 min-[481px]:flex-row min-[481px]:flex-wrap min-[481px]:justify-end">
             <button
               type="button"
+              onClick={() => onOpenChange(false)}
               className={`${BUTTON} w-full border border-line bg-white text-ink hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700 min-[481px]:w-auto`}
             >
               Hủy
             </button>
             <button
               type="submit"
-              className={`${BUTTON} w-full bg-sky-700 text-white shadow-[0_10px_24px_-14px_rgba(3,105,161,0.9)] hover:bg-sky-800 min-[481px]:w-auto`}
+              disabled={isSubmitting}
+              className={`${BUTTON} w-full bg-sky-700 text-white shadow-[0_10px_24px_-14px_rgba(3,105,161,0.9)] hover:bg-sky-800 min-[481px]:w-auto ${
+                isSubmitting ? "opacity-90" : ""
+              }`}
             >
-              Gửi báo cáo
+              {isSubmitting ? "Đang gửi…" : "Gửi báo cáo"}
             </button>
           </div>
         </form>
