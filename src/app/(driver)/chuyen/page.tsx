@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Icon } from "@/components/ui/icon";
 import {
@@ -28,7 +28,27 @@ const PRIMARY =
 const GHOST =
   "inline-flex h-12 grow items-center justify-center gap-[9px] rounded-xl border border-line bg-white px-[22px] text-[14.5px] font-bold leading-none text-ink transition-colors hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700 min-[641px]:grow-0";
 
+function messageOf(error: unknown, fallback: string) {
+  return error instanceof Error && error.message ? error.message : fallback;
+}
+
 export default function TripDetailPage() {
+  return (
+    <Suspense
+      fallback={
+        <main id="main" className="p-6">
+          <div className="text-center text-slate-600">
+            Đang tải chi tiết chuyến…
+          </div>
+        </main>
+      }
+    >
+      <TripDetailContent />
+    </Suspense>
+  );
+}
+
+function TripDetailContent() {
   const searchParams = useSearchParams();
   const tripId = searchParams.get("tripId") || "";
 
@@ -54,16 +74,38 @@ export default function TripDetailPage() {
     try {
       const data = await fetchTripDetail(tripId);
       setTripData(normalizeTripDetail(data));
-    } catch (err: any) {
-      setError(err.message || "Không tải được chi tiết chuyến.");
+    } catch (err: unknown) {
+      setError(messageOf(err, "Không tải được chi tiết chuyến."));
     } finally {
       setLoading(false);
     }
   }, [tripId]);
 
   useEffect(() => {
-    loadTrip();
-  }, [loadTrip]);
+    if (!tripId) return;
+
+    let cancelled = false;
+
+    fetchTripDetail(tripId)
+      .then((data) => {
+        if (!cancelled) {
+          setTripData(normalizeTripDetail(data));
+          setError(null);
+        }
+      })
+      .catch((loadError: unknown) => {
+        if (!cancelled) {
+          setError(messageOf(loadError, "Không tải được chi tiết chuyến."));
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [tripId]);
 
   const startMutating = useCallback((action: string) => {
     setMutating((prev) => new Set([...prev, action]));
@@ -83,8 +125,8 @@ export default function TripDetailPage() {
     try {
       await acceptScheduleTrip(tripId);
       await loadTrip();
-    } catch (err: any) {
-      alert(err.message || "Không nhận được chuyến.");
+    } catch (err: unknown) {
+      alert(messageOf(err, "Không nhận được chuyến."));
     } finally {
       stopMutating("accept");
     }
@@ -96,8 +138,8 @@ export default function TripDetailPage() {
     try {
       await updateScheduleTripStatus(tripId, "IN_PROGRESS");
       await loadTrip();
-    } catch (err: any) {
-      alert(err.message || "Không bắt đầu được chuyến.");
+    } catch (err: unknown) {
+      alert(messageOf(err, "Không bắt đầu được chuyến."));
     } finally {
       stopMutating("start");
     }
@@ -113,8 +155,8 @@ export default function TripDetailPage() {
       await reportIncident(tripId, type, description);
       setIncidentOpen(false);
       await loadTrip();
-    } catch (err: any) {
-      alert(err.message || "Không gửi được báo cáo sự cố.");
+    } catch (err: unknown) {
+      alert(messageOf(err, "Không gửi được báo cáo sự cố."));
     } finally {
       stopMutating("incident");
     }
@@ -126,8 +168,8 @@ export default function TripDetailPage() {
     try {
       await updatePassengerStatus(tripId, ticketId, "PICKED_UP");
       await loadTrip();
-    } catch (err: any) {
-      alert(err.message || "Không cập nhật được trạng thái hành khách.");
+    } catch (err: unknown) {
+      alert(messageOf(err, "Không cập nhật được trạng thái hành khách."));
     } finally {
       stopMutating(`pickup-${ticketId}`);
     }
@@ -142,12 +184,20 @@ export default function TripDetailPage() {
     try {
       await collectPassengerPayment(tripId, ticketId, collectedAmount);
       await loadTrip();
-    } catch (err: any) {
-      alert(err.message || "Không thu được tiền.");
+    } catch (err: unknown) {
+      alert(messageOf(err, "Không thu được tiền."));
     } finally {
       stopMutating(`payment-${ticketId}`);
     }
   };
+
+  if (!tripId) {
+    return (
+      <main id="main" className="p-6">
+        <div className="text-center text-red-600">Thiếu mã chuyến.</div>
+      </main>
+    );
+  }
 
   if (loading) {
     return (
@@ -173,8 +223,6 @@ export default function TripDetailPage() {
     );
   }
 
-  const canAccept =
-    tripData.assignment.label !== "Đã nhận lệnh" && !isMutating("accept");
   const canStart =
     tripData.statusLabel !== "Đang chạy" && !isMutating("start");
 

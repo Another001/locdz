@@ -39,6 +39,12 @@ export default function VehiclePage() {
             </h1>
           </header>
 
+          {loading ? (
+            <div className="mt-6 rounded-[14px] border border-sky-100 bg-sky-50 px-4 py-3 text-[13px] text-sky-800">
+              Đang tải thông tin xe…
+            </div>
+          ) : null}
+
           {error ? (
             <div className="mt-6 rounded-[14px] border border-red-100 bg-red-50 px-4 py-3 text-[13px] text-red-800">
               {error}

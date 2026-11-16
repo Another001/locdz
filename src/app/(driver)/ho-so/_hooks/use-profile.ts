@@ -55,12 +55,8 @@ export function useProfile() {
     setLoading(true);
     setError(null);
     try {
-      console.log("gọi thử profile");
-      const data = await fetchDriverProfile();
-      console.log("data  nè, ", data)
-      setProfile(normalizeProfile(data));
+      setProfile(normalizeProfile(await fetchDriverProfile()));
     } catch (err: unknown) {
-      console.log("Log thử lỗi ", err)
       setError(
         err instanceof DriverProfileApiError
           ? err.message
@@ -72,8 +68,32 @@ export function useProfile() {
   }, []);
 
   useEffect(() => {
-    reload();
-  }, [reload]);
+    let cancelled = false;
+
+    fetchDriverProfile()
+      .then((data) => {
+        if (!cancelled) {
+          setProfile(normalizeProfile(data));
+          setError(null);
+        }
+      })
+      .catch((loadError: unknown) => {
+        if (!cancelled) {
+          setError(
+            loadError instanceof DriverProfileApiError
+              ? loadError.message
+              : "Không tải được hồ sơ."
+          );
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleUpdate = useCallback(
     async (data: UpdateDriverProfileRequest) => {

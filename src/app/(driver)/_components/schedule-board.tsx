@@ -62,9 +62,10 @@ export function ScheduleBoard() {
     if (!input) return;
 
     try {
-      input.showPicker?.();
+      if (input.showPicker) input.showPicker();
+      else input.click();
     } catch {
-      input.focus();
+      input.click();
     }
   }
 

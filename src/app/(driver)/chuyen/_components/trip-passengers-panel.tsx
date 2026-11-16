@@ -128,13 +128,13 @@ function PassengerCard({
   );
 }
 
-interface TripPassengersPanelProps{
-  passengers: any,
-  totalSeats: any,
-  onPickUp: any,
-  onCollectPayment: any,
-  isMutating: any,
-};
+interface TripPassengersPanelProps {
+  passengers: TripDetailPassenger[];
+  totalSeats: number;
+  onPickUp: (ticketId: string) => void;
+  onCollectPayment: (ticketId: string, collectedAmount: number) => void;
+  isMutating: (action: string) => boolean;
+}
 
 export function TripPassengersPanel({
   passengers,
@@ -155,7 +155,7 @@ export function TripPassengersPanel({
       </div>
 
       <div className="grid gap-3">
-        {passengers.map((passenger: any) => (
+        {passengers.map((passenger) => (
           <PassengerCard
             key={passenger.id}
             passenger={passenger}

@@ -57,6 +57,18 @@ interface TripCardProps {
 }
 
 function assignmentFromStatus(trip: Trip): string {
+  if (trip.driverTripStatus === "IN_PROGRESS" || trip.status === "dang-chay") {
+    return "IN_PROGRESS";
+  }
+
+  if (trip.driverTripStatus === "COMPLETED" || trip.status === "hoan-thanh") {
+    return "COMPLETED";
+  }
+
+  if (trip.driverTripStatus === "CANCELLED" || trip.status === "da-huy") {
+    return "REJECTED";
+  }
+
   if (trip.assignmentStatus) return trip.assignmentStatus;
 
   switch (trip.status) {
@@ -68,12 +80,6 @@ function assignmentFromStatus(trip: Trip): string {
       return "PREPARING";
     case "co-mat":
       return "ARRIVED";
-    case "dang-chay":
-      return "IN_PROGRESS";
-    case "hoan-thanh":
-      return "COMPLETED";
-    case "da-huy":
-      return "REJECTED";
     default:
       return "";
   }

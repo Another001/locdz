@@ -25,7 +25,7 @@ const timeFormatter = new Intl.DateTimeFormat("vi-VN", {
   timeZone: TIME_ZONE,
   hour: "2-digit",
   minute: "2-digit",
-  hour12: false,
+  hourCycle: "h23",
 });
 
 export interface ScheduleDay extends DaySchedule {
