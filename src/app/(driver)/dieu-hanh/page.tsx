@@ -1,12 +1,54 @@
-import { operateTrip } from "@/lib/mock/operate";
+"use client";
+
+import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 import { ConfirmModal } from "./_components/confirm-modal";
+import { IncidentModal } from "./_components/incident-modal";
 import { PassengersPanel } from "./_components/passengers-panel";
 import { RoutePanel } from "./_components/route-panel";
 import { TripSidebar } from "./_components/trip-sidebar";
+import { useOperateTrip } from "./_hooks/use-operate-trip";
+
+const LOADING_FALLBACK = (
+  <main id="main" className="p-6">
+    <div className="text-center text-slate-600">
+      Đang tải chuyến điều hành…
+    </div>
+  </main>
+);
 
 export default function OperateTripPage() {
-  const { progress } = operateTrip;
+  const searchParams = useSearchParams();
+  const tripId = searchParams.get("tripId") || "";
+
+  const {
+    trip,
+    loading,
+    error,
+    isMutating,
+    startTrip,
+    completeTrip,
+    pickUpPassenger,
+    dropOffPassenger,
+    collectPayment,
+    submitIncident,
+  } = useOperateTrip({ tripId });
+
+  const [incidentOpen, setIncidentOpen] = useState(false);
+
+  if (loading) return LOADING_FALLBACK;
+  if (!trip) {
+    return (
+      <main id="main" className="p-6">
+        <div className="text-center text-slate-600">
+          {error || "Không tải được chuyến."}
+        </div>
+      </main>
+    );
+  }
+
+  const { progress } = trip;
 
   return (
     <main id="main">
@@ -19,10 +61,10 @@ export default function OperateTripPage() {
                   aria-hidden="true"
                   className="h-0.5 w-[22px] rounded bg-sky-500"
                 />
-                Đang điều hành · {operateTrip.code}
+                Đang điều hành · {trip.code}
               </span>
               <h1 className="mt-2.5 text-balance font-heading text-[clamp(1.65rem,2.8vw,2.25rem)] font-extrabold leading-[1.15] tracking-[-0.03em] text-ink max-[640px]:text-[clamp(1.4rem,5vw,1.75rem)]">
-                {operateTrip.from} → {operateTrip.to}
+                {trip.from} → {trip.to}
               </h1>
             </div>
 
@@ -31,7 +73,7 @@ export default function OperateTripPage() {
                 aria-hidden="true"
                 className="h-[7px] w-[7px] rounded-full bg-emerald-600 animate-[live-pulse_1.8s_ease-out_infinite] motion-reduce:animate-none"
               />
-              {operateTrip.status}
+              {trip.status}
             </span>
           </header>
 
@@ -65,18 +107,43 @@ export default function OperateTripPage() {
 
           <div className="mt-6 grid grid-cols-1 items-start gap-[clamp(20px,3vw,32px)] min-[1025px]:grid-cols-[minmax(0,1fr)_minmax(0,320px)]">
             <div className="grid gap-[clamp(18px,2.4vw,24px)]">
-              <PassengersPanel />
-              <RoutePanel />
+              <PassengersPanel
+                tripId={tripId}
+                passengers={trip.passengers}
+                vehicle={trip.vehicle}
+                onPickUp={pickUpPassenger}
+                onDropOff={dropOffPassenger}
+                onCollectPayment={collectPayment}
+                isMutating={isMutating}
+              />
+              <RoutePanel
+                stops={trip.stops}
+                stopsDone={progress.stopsDone}
+                totalStops={progress.totalStops}
+              />
             </div>
 
             <aside className="grid gap-[clamp(18px,2.4vw,24px)] min-[1025px]:sticky min-[1025px]:top-[94px]">
-              <TripSidebar />
+              <TripSidebar
+                summary={trip.summary}
+                vehicle={trip.vehicle}
+                status={trip.status}
+                onReportIncident={() => setIncidentOpen(true)}
+                onEndTrip={completeTrip}
+                isEnding={isMutating("complete")}
+              />
             </aside>
           </div>
         </div>
       </div>
 
       <ConfirmModal />
+      <IncidentModal
+        open={incidentOpen}
+        onOpenChange={setIncidentOpen}
+        onSubmit={submitIncident}
+        isSubmitting={isMutating("incident")}
+      />
     </main>
   );
 }

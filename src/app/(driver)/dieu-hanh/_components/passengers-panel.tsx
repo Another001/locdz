@@ -1,5 +1,5 @@
+import { useState } from "react";
 import { Icon } from "@/components/ui/icon";
-import { operateTrip } from "@/lib/mock/operate";
 import type { Passenger, PassengerStatus } from "@/types";
 
 const PANEL =
@@ -23,9 +23,41 @@ const ACTION =
 const ACTION_DONE =
   "bg-emerald-50 text-emerald-700 shadow-[inset_0_0_0_1px_#d1fae5] hover:bg-emerald-100";
 
-function PassengerCard({ passenger }: { passenger: Passenger }) {
+interface PassengerCardProps {
+  passenger: Passenger;
+  tripId: string;
+  onPickUp: (ticketId: string) => void;
+  onDropOff: (ticketId: string) => void;
+  onCollectPayment: (ticketId: string, collectedAmount: number) => void;
+  isMutating: (action: string) => boolean;
+}
+
+function PassengerCard({
+  passenger,
+  tripId,
+  onPickUp,
+  onDropOff,
+  onCollectPayment,
+  isMutating,
+}: PassengerCardProps) {
   const stage = STAGE[passenger.status];
   const completed = passenger.status === "da-tra";
+  const isPickingUp = isMutating(`pickup-${passenger.id}`);
+  const isDroppingOff = isMutating(`dropoff-${passenger.id}`);
+  const isCollecting = isMutating(`payment-${passenger.id}`);
+
+  const handleCollectPayment = () => {
+    const amount = window.prompt(
+      "Số tiền thu (VND):",
+      String(passenger.amount || 0)
+    );
+    if (amount !== null) {
+      const val = parseInt(amount.replace(/\D/g, ""), 10);
+      if (!isNaN(val) && val > 0) {
+        onCollectPayment(passenger.id, val);
+      }
+    }
+  };
 
   return (
     <article
@@ -94,43 +126,46 @@ function PassengerCard({ passenger }: { passenger: Passenger }) {
           <span>Copy SĐT</span>
         </button>
 
-        <button
-          type="button"
-          aria-pressed={passenger.paid}
-          className={`${ACTION} ${
-            passenger.paid
-              ? ACTION_DONE
-              : "bg-[#fff1e7] text-[#9a3412] hover:bg-orange-100 hover:text-orange-600"
-          }`}
-        >
-          <Icon name="wallet" className="h-[15px] w-[15px]" />
-          Đã trả tiền
-        </button>
-
-        {passenger.status !== "da-tra" ? (
+        {!passenger.paid ? (
           <button
             type="button"
-            aria-pressed={passenger.status === "da-don"}
-            className={`${ACTION} ${
-              passenger.status === "da-don"
-                ? ACTION_DONE
-                : "bg-sky-700 text-white hover:bg-sky-800"
-            }`}
+            onClick={handleCollectPayment}
+            disabled={isCollecting || !passenger.paid}
+            className={`${ACTION} bg-[#fff1e7] text-[#9a3412] hover:bg-orange-100 hover:text-orange-600 disabled:opacity-50 disabled:cursor-not-allowed`}
+          >
+            <Icon name="wallet" className="h-[15px] w-[15px]" />
+            Thu tiền
+          </button>
+        ) : (
+          <button
+            type="button"
+            aria-pressed={passenger.paid}
+            className={`${ACTION} ${ACTION_DONE}`}
+          >
+            <Icon name="wallet" className="h-[15px] w-[15px]" />
+            Đã trả tiền
+          </button>
+        )}
+
+        {passenger.status === "cho-don" ? (
+          <button
+            type="button"
+            onClick={() => onPickUp(passenger.id)}
+            disabled={isPickingUp}
+            className={`${ACTION} bg-sky-700 text-white hover:bg-sky-800 disabled:opacity-50 disabled:cursor-not-allowed`}
           >
             <Icon name="check" className="h-[15px] w-[15px]" />
             Đã lên xe
           </button>
         ) : null}
 
-        {passenger.status !== "cho-don" ? (
+        {passenger.status === "da-don" ? (
           <button
             type="button"
-            aria-pressed={passenger.status === "da-tra"}
-            className={`${ACTION} ${
-              passenger.status === "da-tra"
-                ? ACTION_DONE
-                : "bg-emerald-600 text-white hover:bg-emerald-700"
-            }`}
+            onClick={() => onDropOff(passenger.id)}
+            disabled={isDroppingOff}
+            aria-pressed={false}
+            className={`${ACTION} bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed`}
           >
             <Icon name="check-circle" className="h-[15px] w-[15px]" />
             Đã trả khách
@@ -141,7 +176,25 @@ function PassengerCard({ passenger }: { passenger: Passenger }) {
   );
 }
 
-export function PassengersPanel() {
+interface PassengersPanelProps {
+  tripId: string;
+  passengers: Passenger[];
+  vehicle: string;
+  onPickUp: (ticketId: string) => void;
+  onDropOff: (ticketId: string) => void;
+  onCollectPayment: (ticketId: string, collectedAmount: number) => void;
+  isMutating: (action: string) => boolean;
+}
+
+export function PassengersPanel({
+  tripId,
+  passengers,
+  vehicle,
+  onPickUp,
+  onDropOff,
+  onCollectPayment,
+  isMutating,
+}: PassengersPanelProps) {
   return (
     <section aria-labelledby="tdh-passengers-title" className={PANEL}>
       <div className="mb-4 flex flex-wrap items-baseline justify-between gap-x-3.5 gap-y-1.5">
@@ -149,13 +202,21 @@ export function PassengersPanel() {
           Hành khách trên chuyến
         </h2>
         <span className="text-[11.5px] font-semibold text-slate-500">
-          {operateTrip.passengers.length} khách · {operateTrip.vehicle}
+          {passengers.length} khách · {vehicle}
         </span>
       </div>
 
       <div className="grid gap-3">
-        {operateTrip.passengers.map((passenger) => (
-          <PassengerCard key={passenger.id} passenger={passenger} />
+        {passengers.map((passenger) => (
+          <PassengerCard
+            key={passenger.id}
+            passenger={passenger}
+            tripId={tripId}
+            onPickUp={onPickUp}
+            onDropOff={onDropOff}
+            onCollectPayment={onCollectPayment}
+            isMutating={isMutating}
+          />
         ))}
       </div>
     </section>

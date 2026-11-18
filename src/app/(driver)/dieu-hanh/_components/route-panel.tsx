@@ -1,5 +1,4 @@
-import { operateTrip } from "@/lib/mock/operate";
-import type { RouteStopState } from "@/types";
+import type { RouteStop, RouteStopState } from "@/types";
 
 const PANEL =
   "rounded-[20px] border border-line bg-surface p-[clamp(20px,2.6vw,28px)] shadow-xs";
@@ -12,7 +11,17 @@ const DOT: Record<RouteStopState, string> = {
   end: "bg-slate-300 shadow-[0_0_0_4px_rgba(148,163,184,0.15)]",
 };
 
-export function RoutePanel() {
+interface RoutePanelProps {
+  stops: RouteStop[];
+  stopsDone: number;
+  totalStops: number;
+}
+
+export function RoutePanel({
+  stops,
+  stopsDone,
+  totalStops,
+}: RoutePanelProps) {
   return (
     <section aria-labelledby="tdh-route-title" className={PANEL}>
       <div className="mb-4 flex flex-wrap items-baseline justify-between gap-x-3.5 gap-y-1.5">
@@ -20,18 +29,17 @@ export function RoutePanel() {
           Lịch trình
         </h2>
         <span className="text-[11.5px] font-semibold text-slate-500">
-          {operateTrip.progress.stopsDone}/{operateTrip.progress.totalStops} điểm
-          dừng
+          {stopsDone}/{totalStops} điểm dừng
         </span>
       </div>
 
       <ol className="grid list-none">
-        {operateTrip.stops.map((stop, index) => (
+        {stops.map((stop, index) => (
           <li
             key={stop.id}
             className="relative grid grid-cols-[22px_minmax(0,1fr)] gap-x-3.5 pb-[18px] last:pb-0"
           >
-            {index < operateTrip.stops.length - 1 ? (
+            {index < stops.length - 1 ? (
               <span
                 aria-hidden="true"
                 className="absolute bottom-0 left-[10px] top-[18px] w-0.5 bg-[repeating-linear-gradient(to_bottom,#d8e6f2_0,#d8e6f2_4px,transparent_4px,transparent_8px)]"
