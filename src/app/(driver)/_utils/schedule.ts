@@ -203,6 +203,21 @@ export function tripsForDate(
     );
 }
 
+export function pickFocusDate(
+  trips: ScheduleTrip[],
+  today: string
+): string {
+  const dateKeys = Array.from(
+    new Set(trips.map(tripDateKey).filter(Boolean))
+  ).sort();
+
+  if (!dateKeys.length) return today;
+
+  const nearestUpcoming = dateKeys.find((dateKey) => dateKey >= today);
+
+  return nearestUpcoming ?? dateKeys[dateKeys.length - 1];
+}
+
 export function buildWeekDays(
   weekStart: string,
   trips: ScheduleTrip[],

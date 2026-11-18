@@ -106,7 +106,7 @@ export function TripCard({
   return (
     <div className="grid gap-2.5">
       <Link
-        href="/chuyen"
+        href={`/chuyen?tripId=${trip.id}`}
         className="grid min-h-14 min-w-0 grid-cols-[52px_minmax(0,1fr)_16px] items-center gap-2.5 rounded-[14px] border border-line-soft border-l-[3px] border-l-sky-600 bg-sky-50 px-2.5 py-2.5 transition-colors hover:border-sky-300 hover:bg-sky-100 max-[400px]:grid-cols-[50px_minmax(0,1fr)_16px] max-[400px]:gap-[9px] max-[400px]:px-[11px] max-[400px]:py-3.5"
       >
         <div>

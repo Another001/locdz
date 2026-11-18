@@ -23,6 +23,7 @@ import {
   addDays,
   buildWeekDays,
   formatWeekRange,
+  pickFocusDate,
   relativeWeekLabel,
   startOfWeek,
   todayKey,
@@ -68,8 +69,13 @@ export function useSchedule() {
     getServerToday
   );
 
-  const activeWeekStart = weekStart ?? (today ? startOfWeek(today) : null);
-  const activeDate = selectedDate ?? (today || null);
+  const focusDate = useMemo(
+    () => pickFocusDate(trips, today),
+    [today, trips]
+  );
+  const activeWeekStart =
+    weekStart ?? (focusDate ? startOfWeek(focusDate) : null);
+  const activeDate = selectedDate ?? (focusDate || null);
 
   const reload = useCallback(async () => {
     setLoading(true);

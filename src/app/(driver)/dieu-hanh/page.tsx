@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { ConfirmModal } from "./_components/confirm-modal";
@@ -19,6 +19,14 @@ const LOADING_FALLBACK = (
 );
 
 export default function OperateTripPage() {
+  return (
+    <Suspense fallback={LOADING_FALLBACK}>
+      <OperateTripContent />
+    </Suspense>
+  );
+}
+
+function OperateTripContent() {
   const searchParams = useSearchParams();
   const tripId = searchParams.get("tripId") || "";
 
@@ -27,7 +35,6 @@ export default function OperateTripPage() {
     loading,
     error,
     isMutating,
-    startTrip,
     completeTrip,
     pickUpPassenger,
     dropOffPassenger,
