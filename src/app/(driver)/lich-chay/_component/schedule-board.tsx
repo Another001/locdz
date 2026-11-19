@@ -5,12 +5,34 @@ import { useRef, useState } from "react";
 import { Icon } from "@/components/ui/icon";
 import type { Trip } from "@/types";
 
-import { useSchedule } from "../_hooks/use-schedule";
+import { useSchedule } from "../../_hooks/use-schedule";
 import { RejectTripModal } from "./reject-trip-modal";
 import { TripCard } from "./trip-card";
+import { ScheduleDay } from "../../_utils/schedule";
 
-export function ScheduleBoard() {
-  const {
+interface ScheduleBoardInterface{
+  loading : any,
+  error: any,
+  actionError: any,
+  pendingTripId: any,
+  today: any,
+  weekDays: ScheduleDay[],
+  selectedDay: ScheduleDay,
+  selectedDate: any,
+  weekLabel: any,
+  weekRange: any,
+  reload: any,
+  goToPreviousWeek: any,
+  goToNextWeek: any,
+  goToDate: any,
+  clearActionError: any,
+  acceptTrip: any,
+  rejectTrip: any,
+  setAssignmentStatus: any,
+  setTripStatus: any,
+}
+
+export function ScheduleBoard({
     loading,
     error,
     actionError,
@@ -30,7 +52,7 @@ export function ScheduleBoard() {
     rejectTrip,
     setAssignmentStatus,
     setTripStatus,
-  } = useSchedule();
+  }: ScheduleBoardInterface) {
 
   const [rejectingTrip, setRejectingTrip] = useState<Trip | null>(null);
   const dateInputRef = useRef<HTMLInputElement>(null);
