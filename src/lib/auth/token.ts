@@ -1,4 +1,4 @@
-import type { AuthRole, AuthUser } from "@/types/auth";
+import type { AuthProfile, AuthRole, AuthUser } from "@/types/auth";
 
 import {
   DEFAULT_ROLE,
@@ -63,27 +63,33 @@ function collectStrings(value: unknown, result: string[]): void {
   }
 }
 
-function rolesFromClaims(claims: JwtClaims): AuthRole[] {
+export function rolesFromValues(value: unknown): AuthRole[] {
   const raw: string[] = [];
 
-  collectStrings(claims.role, raw);
-  collectStrings(claims.roles, raw);
-  collectStrings(claims.authorities, raw);
-  collectStrings(claims.scope, raw);
-  collectStrings(claims.scopes, raw);
-  collectStrings(claims.realm_access, raw);
-  collectStrings(claims.resource_access, raw);
+  collectStrings(value, raw);
 
   const roles = new Set<AuthRole>();
 
-  for (const value of raw) {
-    const role = normalizeRole(value);
+  for (const item of raw) {
+    const role = normalizeRole(item);
     if (role) roles.add(role);
   }
 
   if (roles.size === 0) roles.add(DEFAULT_ROLE);
 
   return Array.from(roles);
+}
+
+function rolesFromClaims(claims: JwtClaims): AuthRole[] {
+  return rolesFromValues([
+    claims.role,
+    claims.roles,
+    claims.authorities,
+    claims.scope,
+    claims.scopes,
+    claims.realm_access,
+    claims.resource_access,
+  ]);
 }
 
 export function displayNameFromIdentifier(identifier: string): string {
@@ -102,31 +108,38 @@ export function displayNameFromIdentifier(identifier: string): string {
 
 export function userFromAccessToken(
   accessToken: string,
-  fallbackIdentifier?: string
+  fallbackIdentifier?: string,
+  profile?: AuthProfile
 ): AuthUser | null {
   const claims = decodeJwtClaims(accessToken);
 
   if (!claims || isTokenExpired(claims)) return null;
 
   const identifier =
+    readString(profile?.email) ??
+    readString(profile?.phone) ??
     readString(claims.email) ??
     readString(claims.preferred_username) ??
     readString(claims.username) ??
     readString(claims.phone_number) ??
+    readString(fallbackIdentifier) ??
     readString(claims.sub) ??
-    fallbackIdentifier ??
     "driver";
 
   const name =
+    readString(profile?.fullName) ??
     readString(claims.name) ??
     readString(claims.full_name) ??
     readString(claims.display_name) ??
     displayNameFromIdentifier(identifier);
 
-  const roles = rolesFromClaims(claims);
+  const roles =
+    profile?.authorities && profile.authorities.length > 0
+      ? rolesFromValues(profile.authorities)
+      : rolesFromClaims(claims);
 
   return {
-    id: readString(claims.sub) ?? identifier,
+    id: readString(profile?.id) ?? readString(claims.sub) ?? identifier,
     identifier,
     name,
     roles,

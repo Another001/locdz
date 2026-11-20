@@ -1,3 +1,10 @@
+import { getMeAPI } from "@/api/auth/api/get-me";
+import { loginAPI } from "@/api/auth/api/login";
+import { logoutAPI } from "@/api/auth/api/logout";
+import { ApiError } from "@/api/types";
+import { useSessionStore } from "@/global-states/session-store";
+import { userFromAccessToken } from "@/lib/auth/token";
+import { STORAGE_KEYS, getItem, removeItem, setItem } from "@/lib/storage";
 import type { AuthUser, LoginInput } from "@/types/auth";
 
 export class AuthApiError extends Error {
@@ -12,43 +19,106 @@ export class AuthApiError extends Error {
   }
 }
 
-async function parseBody(response: Response) {
-  return (await response.json().catch(() => null)) as
-    | { user?: AuthUser; message?: string; code?: number }
-    | null;
+function toAuthApiError(error: unknown): AuthApiError {
+  if (error instanceof ApiError) {
+    return new AuthApiError(error.message, error.status ?? 0, error.code);
+  }
+
+  return new AuthApiError(
+    "Không kết nối được máy chủ. Vui lòng kiểm tra mạng và thử lại.",
+    0
+  );
+}
+
+function clearTokens(): void {
+  removeItem(STORAGE_KEYS.accessToken);
+  removeItem(STORAGE_KEYS.refreshToken);
 }
 
 export async function loginRequest(input: LoginInput): Promise<AuthUser> {
-  const response = await fetch("/api/auth/login", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(input),
-  });
+  try {
+    const tokens = await loginAPI({
+      identifier: input.identifier,
+      password: input.password,
+    });
 
-  const body = await parseBody(response);
+    if (!tokens?.accessToken) {
+      throw new AuthApiError(
+        "Phiên đăng nhập không hợp lệ. Vui lòng thử lại.",
+        502
+      );
+    }
 
-  if (!response.ok || !body?.user) {
-    throw new AuthApiError(
-      body?.message || "Đăng nhập thất bại. Vui lòng thử lại.",
-      response.status,
-      body?.code
+    setItem(STORAGE_KEYS.accessToken, tokens.accessToken);
+
+    if (tokens.refreshToken) {
+      setItem(STORAGE_KEYS.refreshToken, tokens.refreshToken);
+    }
+
+    const profile = await getMeAPI().catch(() => null);
+    const currentToken = getItem(STORAGE_KEYS.accessToken);
+
+    if (!currentToken) {
+      throw new AuthApiError(
+        "Phiên đăng nhập không hợp lệ. Vui lòng thử lại.",
+        401
+      );
+    }
+
+    const user = userFromAccessToken(
+      currentToken,
+      input.identifier,
+      profile ?? undefined
     );
-  }
 
-  return body.user;
+    if (!user) {
+      throw new AuthApiError(
+        "Phiên đăng nhập không hợp lệ. Vui lòng thử lại.",
+        502
+      );
+    }
+
+    useSessionStore.getState().setUser(user);
+    useSessionStore.getState().markReady();
+
+    return user;
+  } catch (error) {
+    if (error instanceof AuthApiError) throw error;
+    throw toAuthApiError(error);
+  }
 }
 
 export async function logoutRequest(): Promise<void> {
-  await fetch("/api/auth/logout", { method: "POST" });
+  await logoutAPI().catch(() => undefined);
+
+  clearTokens();
+  useSessionStore.getState().clearSession();
 }
 
 export async function getCurrentUser(): Promise<AuthUser | null> {
-  const response = await fetch("/api/auth/me", { cache: "no-store" });
+  const token = getItem(STORAGE_KEYS.accessToken);
 
-  if (response.status === 401) return null;
-  if (!response.ok) return null;
+  if (!token) return null;
 
-  const body = await parseBody(response);
+  try {
+    const profile = await getMeAPI();
+    const currentToken = getItem(STORAGE_KEYS.accessToken) ?? token;
+    const user = userFromAccessToken(
+      currentToken,
+      profile.email ?? profile.phone,
+      profile
+    );
 
-  return body?.user ?? null;
+    if (!user) {
+      clearTokens();
+      useSessionStore.getState().clearSession();
+      return null;
+    }
+
+    return user;
+  } catch {
+    clearTokens();
+    useSessionStore.getState().clearSession();
+    return null;
+  }
 }

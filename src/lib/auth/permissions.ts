@@ -66,6 +66,7 @@ export function normalizeRole(value: string): AuthRole | null {
     .trim()
     .toLowerCase()
     .replace(/^role_/, "")
+    .split(":")[0]
     .replace(/[\s-]+/g, "_");
 
   return ROLE_ALIASES[cleaned] ?? null;

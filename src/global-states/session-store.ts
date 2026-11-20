@@ -1,17 +1,14 @@
 import { create } from "zustand";
 
-export type SessionUser = {
-  id?: string;
-  name?: string;
-  email?: string;
-  phone?: string;
-};
+import type { AuthUser } from "@/types/auth";
+
+export type SessionUser = AuthUser;
 
 type SessionState = {
-  user: SessionUser | null;
+  user: AuthUser | null;
   ready: boolean;
   readyWithUser: boolean;
-  setUser: (user: SessionUser | null) => void;
+  setUser: (user: AuthUser | null) => void;
   markReady: () => void;
   clearSession: () => void;
 };

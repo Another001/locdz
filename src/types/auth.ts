@@ -23,6 +23,14 @@ export interface AuthUser {
   permissions: Permission[];
 }
 
+export interface AuthProfile {
+  id?: string;
+  fullName?: string;
+  email?: string;
+  phone?: string;
+  authorities?: string[];
+}
+
 export interface LoginInput {
   identifier: string;
   password: string;
