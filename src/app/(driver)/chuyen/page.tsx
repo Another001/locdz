@@ -5,10 +5,8 @@ import { useSearchParams } from "next/navigation";
 import { Icon } from "@/components/ui/icon";
 import {
   acceptScheduleTrip,
-  collectPassengerPayment,
   fetchTripDetail,
   reportIncident,
-  updatePassengerStatus,
   updateScheduleAssignmentStatus,
   updateScheduleTripStatus,
 } from "@/lib/api/driver-trips";
@@ -196,35 +194,6 @@ function TripDetailContent() {
     }
   };
 
-  const handlePickUp = async (ticketId: string) => {
-    if (!tripId) return;
-    startMutating(`pickup-${ticketId}`);
-    try {
-      await updatePassengerStatus(tripId, ticketId, "PICKED_UP");
-      await loadTrip();
-    } catch (err: unknown) {
-      alert(messageOf(err, "Không cập nhật được trạng thái hành khách."));
-    } finally {
-      stopMutating(`pickup-${ticketId}`);
-    }
-  };
-
-  const handleCollectPayment = async (
-    ticketId: string,
-    collectedAmount: number
-  ) => {
-    if (!tripId) return;
-    startMutating(`payment-${ticketId}`);
-    try {
-      await collectPassengerPayment(tripId, ticketId, collectedAmount);
-      await loadTrip();
-    } catch (err: unknown) {
-      alert(messageOf(err, "Không thu được tiền."));
-    } finally {
-      stopMutating(`payment-${ticketId}`);
-    }
-  };
-
   if (!tripId) {
     return (
       <main id="main" className="p-6">
@@ -348,9 +317,6 @@ function TripDetailContent() {
               <TripPassengersPanel
                 passengers={tripData.passengers}
                 totalSeats={tripData.totalSeats}
-                onPickUp={handlePickUp}
-                onCollectPayment={handleCollectPayment}
-                isMutating={isMutating}
               />
             </div>
 

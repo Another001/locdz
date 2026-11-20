@@ -9,25 +9,13 @@ const PANEL_TITLE =
 const BADGE =
   "inline-flex items-center rounded-full px-2.5 py-[5px] text-[11px] font-bold tracking-[0.02em] whitespace-nowrap";
 
-function PassengerCard({
-  passenger,
-  onPickUp,
-  onCollectPayment,
-  isMutating,
-}: {
-  passenger: TripDetailPassenger;
-  onPickUp: (ticketId: string) => void;
-  onCollectPayment: (ticketId: string, collectedAmount: number) => void;
-  isMutating: (action: string) => boolean;
-}) {
-  const isPickingUp = isMutating(`pickup-${passenger.id}`);
-  const isCollecting = isMutating(`payment-${passenger.id}`);
+function PassengerCard({ passenger }: { passenger: TripDetailPassenger }) {
   return (
     <article
       className={`rounded-[14px] border px-4 py-3.5 transition-colors ${
         passenger.picked
           ? "border-emerald-100 bg-emerald-50"
-          : "border-line-soft bg-canvas hover:border-[#cfe6f6] hover:bg-surface"
+          : "border-line-soft bg-canvas"
       }`}
     >
       <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
@@ -66,20 +54,7 @@ function PassengerCard({
                 : "bg-sky-100 text-sky-700"
             }`}
           >
-            {!passenger.picked ? (
-              <button
-                type="button"
-                onClick={() => onPickUp(passenger.id)}
-                disabled={isPickingUp}
-                className="inline-flex h-8 items-center justify-center rounded-xl border border-line bg-white px-2 text-[11px] font-medium text-slate-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Đón
-              </button>
-            ) : (
-              <span className={`${BADGE} bg-emerald-100 text-emerald-700`}>
-                Đã đón
-              </span>
-            )}
+            {passenger.picked ? "Đã đón" : "Chưa đón"}
           </span>
           <span
             className={`${BADGE} ${
@@ -88,28 +63,7 @@ function PassengerCard({
                 : "bg-[#fff1e7] text-[#9a3412]"
             }`}
           >
-            {!passenger.paid ? (
-              <button
-                type="button"
-                onClick={() => {
-                  const amount = window.prompt("Số tiền thu (VND):", "");
-                  if (amount !== null) {
-                    const val = parseInt(amount.replace(/\D/g, ""), 10);
-                    if (!isNaN(val) && val > 0) {
-                      onCollectPayment(passenger.id, val);
-                    }
-                  }
-                }}
-                disabled={isCollecting || !passenger.picked}
-                className="inline-flex h-8 items-center justify-center rounded-xl border border-line bg-white px-2 text-[11px] font-medium text-slate-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Thu tiền
-              </button>
-            ) : (
-              <span className={`${BADGE} bg-emerald-100 text-emerald-700`}>
-                Đã TT
-              </span>
-            )}
+            {passenger.paid ? "Đã TT" : "Chưa TT"}
           </span>
         </div>
       </div>
@@ -131,17 +85,11 @@ function PassengerCard({
 interface TripPassengersPanelProps {
   passengers: TripDetailPassenger[];
   totalSeats: number;
-  onPickUp: (ticketId: string) => void;
-  onCollectPayment: (ticketId: string, collectedAmount: number) => void;
-  isMutating: (action: string) => boolean;
 }
 
 export function TripPassengersPanel({
   passengers,
   totalSeats,
-  onPickUp,
-  onCollectPayment,
-  isMutating,
 }: TripPassengersPanelProps) {
   return (
     <section aria-labelledby="tcd-passengers-title" className={PANEL}>
@@ -156,13 +104,7 @@ export function TripPassengersPanel({
 
       <div className="grid gap-3">
         {passengers.map((passenger) => (
-          <PassengerCard
-            key={passenger.id}
-            passenger={passenger}
-            onPickUp={onPickUp}
-            onCollectPayment={onCollectPayment}
-            isMutating={isMutating}
-          />
+          <PassengerCard key={passenger.id} passenger={passenger} />
         ))}
       </div>
     </section>

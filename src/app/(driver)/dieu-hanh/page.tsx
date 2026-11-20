@@ -115,7 +115,6 @@ function OperateTripContent() {
           <div className="mt-6 grid grid-cols-1 items-start gap-[clamp(20px,3vw,32px)] min-[1025px]:grid-cols-[minmax(0,1fr)_minmax(0,320px)]">
             <div className="grid gap-[clamp(18px,2.4vw,24px)]">
               <PassengersPanel
-                tripId={tripId}
                 passengers={trip.passengers}
                 vehicle={trip.vehicle}
                 onPickUp={pickUpPassenger}

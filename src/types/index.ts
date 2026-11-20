@@ -179,6 +179,7 @@ export interface TripDetailVehicle {
   name: string;
   plate: string;
   meta: string;
+  color?: string;
 }
 
 export type AssignmentStepState = "done" | "current" | "upcoming";

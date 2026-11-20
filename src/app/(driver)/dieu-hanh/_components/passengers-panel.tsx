@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Icon } from "@/components/ui/icon";
 import type { Passenger, PassengerStatus } from "@/types";
 
@@ -25,7 +24,6 @@ const ACTION_DONE =
 
 interface PassengerCardProps {
   passenger: Passenger;
-  tripId: string;
   onPickUp: (ticketId: string) => void;
   onDropOff: (ticketId: string) => void;
   onCollectPayment: (ticketId: string, collectedAmount: number) => void;
@@ -34,7 +32,6 @@ interface PassengerCardProps {
 
 function PassengerCard({
   passenger,
-  tripId,
   onPickUp,
   onDropOff,
   onCollectPayment,
@@ -49,7 +46,7 @@ function PassengerCard({
   const handleCollectPayment = () => {
     const amount = window.prompt(
       "Số tiền thu (VND):",
-      String(passenger.amount || 0)
+      passenger.amount > 0 ? String(passenger.amount) : ""
     );
     if (amount !== null) {
       const val = parseInt(amount.replace(/\D/g, ""), 10);
@@ -130,7 +127,7 @@ function PassengerCard({
           <button
             type="button"
             onClick={handleCollectPayment}
-            disabled={isCollecting || !passenger.paid}
+            disabled={isCollecting}
             className={`${ACTION} bg-[#fff1e7] text-[#9a3412] hover:bg-orange-100 hover:text-orange-600 disabled:opacity-50 disabled:cursor-not-allowed`}
           >
             <Icon name="wallet" className="h-[15px] w-[15px]" />
@@ -177,7 +174,6 @@ function PassengerCard({
 }
 
 interface PassengersPanelProps {
-  tripId: string;
   passengers: Passenger[];
   vehicle: string;
   onPickUp: (ticketId: string) => void;
@@ -187,7 +183,6 @@ interface PassengersPanelProps {
 }
 
 export function PassengersPanel({
-  tripId,
   passengers,
   vehicle,
   onPickUp,
@@ -211,7 +206,6 @@ export function PassengersPanel({
           <PassengerCard
             key={passenger.id}
             passenger={passenger}
-            tripId={tripId}
             onPickUp={onPickUp}
             onDropOff={onDropOff}
             onCollectPayment={onCollectPayment}

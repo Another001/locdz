@@ -104,7 +104,7 @@ export function TripInfoPanel({
             {vehicle.name}
           </strong>
           <span className="mt-0.5 block text-[12.5px] leading-[1.45] text-slate-500">
-            {vehicle.meta}
+            {vehicle.plate} - {vehicle.color ? vehicle.color : ""}
           </span>
         </div>
       </div>
