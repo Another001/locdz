@@ -44,3 +44,4 @@ next-env.d.ts
 api.md
 .agents
 trip_status_api.md
+.opencode

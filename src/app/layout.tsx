@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Be_Vietnam_Pro, Noto_Sans } from "next/font/google";
 
+import { QueryProvider } from "@/components/providers/query-provider";
 import { Sprite } from "@/components/ui/sprite";
 
 import "./globals.css";
@@ -36,7 +37,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           Bỏ qua điều hướng
         </a>
         <Sprite />
-        {children}
+        <QueryProvider>{children}</QueryProvider>
       </body>
     </html>
   );
