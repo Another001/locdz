@@ -20,6 +20,7 @@ import { TripInfoPanel } from "./_components/trip-info-panel";
 import { TripPassengersPanel } from "./_components/trip-passengers-panel";
 import { TripSummary } from "./_components/trip-summary";
 import { TripTimelinePanel } from "./_components/trip-timeline-panel";
+import { useRouter } from "next/navigation";
 
 const STATUS_BADGE =
   "inline-flex flex-none items-center rounded-full bg-sky-100 px-2.5 py-[5px] text-[11px] font-bold tracking-[0.02em] whitespace-nowrap text-sky-800";
@@ -57,6 +58,7 @@ function TripDetailContent() {
   const [error, setError] = useState<string | null>(null);
   const [incidentOpen, setIncidentOpen] = useState(false);
   const [mutating, setMutating] = useState<Set<string>>(new Set());
+  const router = useRouter()
 
   const isMutating = useCallback(
     (action: string) => mutating.has(action),
@@ -135,9 +137,12 @@ function TripDetailContent() {
   const handleStartTrip = async () => {
     if (!tripId) return;
     startMutating("start");
+    console.log("try tryt")
     try {
       await updateScheduleTripStatus(tripId, "IN_PROGRESS");
       await loadTrip();
+      console.log("done try")
+      router.push(`/dieu-hanh?tripId=${tripId}`)
     } catch (err: unknown) {
       alert(messageOf(err, "Không bắt đầu được chuyến."));
     } finally {
@@ -254,7 +259,7 @@ function TripDetailContent() {
             <button
               type="button"
               onClick={handleStartTrip}
-              disabled={!canStart}
+              //disabled={!canStart}
               aria-describedby="tcdLenhHint"
               className={PRIMARY}
             >

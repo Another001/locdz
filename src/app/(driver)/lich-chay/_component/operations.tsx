@@ -1,8 +1,25 @@
 import Link from "next/link";
 
 import { Icon } from "@/components/ui/icon";
+import type { ScheduleTrip } from "@/types/driver";
 
-export function Operations() {
+interface OperationsProps {
+  trip?: ScheduleTrip;
+}
+
+export function Operations({ trip }: OperationsProps) {
+  const vehicleModel = trip?.vehicleModel ?? "Ford Transit 16 chỗ";
+  const plateNumber = trip?.plateNumber ?? "51A-123.45";
+  const passengerCapacity = trip?.passengerCapacity;
+  const capacityText = passengerCapacity ? `${passengerCapacity} chỗ` : "16 chỗ";
+  const inspectionExpiresOn = trip?.inspectionExpiresOn;
+  const inspectionText = inspectionExpiresOn
+    ? `${inspectionExpiresOn.slice(5, 7)}/${inspectionExpiresOn.slice(0, 4)}`
+    : "12/2026";
+  const vehicleStatus = trip?.vehicleStatus ?? "ACTIVE";
+  const isActive = vehicleStatus === "ACTIVE";
+  const statusLabel = isActive ? "Hoạt động" : "Dừng hoạt động";
+
   return (
     <section
       id="thong-tin-tai-xe"
@@ -46,7 +63,7 @@ export function Operations() {
                   Xe được giao
                 </span>
                 <strong className="mt-1 block font-heading text-sm font-bold leading-snug text-ink">
-                  Ford Transit 16 chỗ
+                  {vehicleModel}
                 </strong>
               </div>
 
@@ -65,7 +82,7 @@ export function Operations() {
                   Biển số
                 </dt>
                 <dd className="mt-[5px] font-heading text-[13px] font-bold leading-normal text-ink">
-                  51A-123.45
+                  {plateNumber}
                 </dd>
               </div>
 
@@ -74,7 +91,7 @@ export function Operations() {
                   Sức chứa
                 </dt>
                 <dd className="mt-[5px] font-heading text-[13px] font-bold leading-normal text-ink">
-                  16 chỗ
+                  {capacityText}
                 </dd>
               </div>
 
@@ -83,7 +100,7 @@ export function Operations() {
                   Đăng kiểm
                 </dt>
                 <dd className="mt-[5px] font-heading text-[13px] font-bold leading-normal text-ink">
-                  12/2026
+                  {inspectionText}
                 </dd>
               </div>
 
@@ -92,8 +109,10 @@ export function Operations() {
                   Trạng thái
                 </dt>
                 <dd className="mt-[5px]">
-                  <span className="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-[5px] text-[11px] font-bold tracking-[0.02em] whitespace-nowrap text-emerald-700">
-                    Hoạt động
+                  <span
+                    className={`inline-flex items-center rounded-full ${isActive ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-700"} px-2.5 py-[5px] text-[11px] font-bold tracking-[0.02em] whitespace-nowrap`}
+                  >
+                    {statusLabel}
                   </span>
                 </dd>
               </div>

@@ -1,6 +1,10 @@
+'use client'
+
+import { useMemo } from "react";
 import { Operations } from "./_component/operations";
 import { ScheduleBoard } from "./_component/schedule-board";
 import { useSchedule } from "../_hooks/use-schedule";
+import { toDateKey } from "../_utils/schedule";
 
 export default function DriverOverviewPage() {
   const {
@@ -23,7 +27,18 @@ export default function DriverOverviewPage() {
       rejectTrip,
       setAssignmentStatus,
       setTripStatus,
+      trips,
     } = useSchedule();
+
+  const tripForSelectedDay = useMemo(() => {
+    if (!selectedDay?.dateKey) return undefined;
+
+    return trips.find((t) => {
+      const d = new Date(t.departureAt);
+      return !isNaN(d.getTime()) && toDateKey(d) === selectedDay.dateKey;
+    });
+  }, [trips, selectedDay?.dateKey]);
+
   return (
     <main id="main">
       <section className="pb-14 pt-9 min-[768px]:pb-[84px] min-[768px]:pt-14">
@@ -62,7 +77,7 @@ export default function DriverOverviewPage() {
             setAssignmentStatus = {setAssignmentStatus}
             setTripStatus = {setTripStatus}
           />
-          <Operations />
+          <Operations trip={tripForSelectedDay} />
         </div>
       </section>
     </main>

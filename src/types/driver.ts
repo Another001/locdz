@@ -52,6 +52,9 @@ export interface ScheduleTrip {
   routeCode: string;
   vehicleModel: string;
   plateNumber: string;
+  passengerCapacity?: number;
+  inspectionExpiresOn?: string;
+  vehicleStatus?: string;
 }
 
 export interface DriverTripStatusResponse {
