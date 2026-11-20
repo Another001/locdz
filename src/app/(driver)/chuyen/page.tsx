@@ -137,11 +137,11 @@ function TripDetailContent() {
   const handleStartTrip = async () => {
     if (!tripId) return;
     startMutating("start");
-    console.log("try tryt")
+    // console.log("try tryt")
     try {
       await updateScheduleTripStatus(tripId, "IN_PROGRESS");
       await loadTrip();
-      console.log("done try")
+      // console.log("done try")
       router.push(`/dieu-hanh?tripId=${tripId}`)
     } catch (err: unknown) {
       alert(messageOf(err, "Không bắt đầu được chuyến."));

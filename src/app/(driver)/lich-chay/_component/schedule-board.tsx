@@ -5,7 +5,6 @@ import { useRef, useState } from "react";
 import { Icon } from "@/components/ui/icon";
 import type { Trip } from "@/types";
 
-import { useSchedule } from "../../_hooks/use-schedule";
 import { RejectTripModal } from "./reject-trip-modal";
 import { TripCard } from "./trip-card";
 import { ScheduleDay } from "../../_utils/schedule";

@@ -10,5 +10,6 @@
     "task": "ask",
     "webfetch": "ask",
     "websearch": "ask"
-  }
+  },
+  "snapshot": false
 }

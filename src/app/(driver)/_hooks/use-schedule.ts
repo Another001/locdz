@@ -241,6 +241,8 @@ export function useSchedule() {
               ? {
                   ...item,
                   tripStatus: result.trip?.status ?? status,
+                  assignmentStatus:
+                    result.assignmentStatus ?? item.assignmentStatus,
                 }
               : item
           )

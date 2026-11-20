@@ -89,7 +89,7 @@ export function updateDriverTripStatus(
     body: {
       wsRequest: {
         status,
-        actualAt: actualAt ?? new Date().toISOString(),
+        ...(actualAt ? { actualAt } : {}),
       },
     },
     token,

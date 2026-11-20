@@ -95,13 +95,16 @@ export function updateScheduleAssignmentStatus(
 
 export function updateScheduleTripStatus(
   tripId: string,
-  status: "IN_PROGRESS" | "COMPLETED"
+  status: "IN_PROGRESS" | "COMPLETED",
+  actualAt?: string
 ): Promise<DriverTripStatusResponse> {
   return request<DriverTripStatusResponse>(
     `/api/driver/trips/${encodeURIComponent(tripId)}/status`,
     {
       method: "PATCH",
-      body: JSON.stringify({ status }),
+      body: JSON.stringify(
+        actualAt ? { status, actualAt } : { status }
+      ),
     }
   );
 }

@@ -4,13 +4,16 @@ export type DriverAssignmentStatus =
   | "PREPARING"
   | "ARRIVED"
   | "COMPLETED"
-  | "REJECTED";
+  | "REJECTED"
+  | "REPLACED";
 
 export type DriverTripStatus =
+  | "DRAFT"
   | "SCHEDULED"
   | "IN_PROGRESS"
   | "COMPLETED"
-  | "CANCELLED";
+  | "CANCELLED"
+  | "TERMINATED";
 
 export interface DriverTripRef {
   id: string;
