@@ -1,4 +1,4 @@
-import type { AssignmentStep, TripDetail } from "@/types";
+import type { AssignmentStep, TripDetail, TripRoutePoint } from "@/types";
 import type {
   DriverTripDetail,
   DriverTripListItem,
@@ -29,6 +29,9 @@ export function normalizeDriverTrip(
     routeCode: trip.routeCode ?? "",
     vehicleModel: vehicle?.vehicleModel ?? "",
     plateNumber: vehicle?.plateNumber ?? "",
+    passengerCapacity: vehicle?.passengerCapacity ?? undefined,
+    inspectionExpiresOn: vehicle?.inspectionExpiresOn ?? undefined,
+    vehicleStatus: vehicle?.status ?? undefined,
   };
 }
 
@@ -36,7 +39,10 @@ export function needsTripDetail(item: DriverTripListItem): boolean {
   return (
     !item.trip?.departureAt ||
     !item.trip?.routeName ||
-    !(item.vehicle?.vehicleModel || item.vehicle?.plateNumber)
+    !(item.vehicle?.vehicleModel || item.vehicle?.plateNumber) ||
+    !item.vehicle?.passengerCapacity ||
+    !item.vehicle?.inspectionExpiresOn ||
+    !item.vehicle?.status
   );
 }
 
@@ -112,23 +118,110 @@ function buildAssignmentSteps(status: string): AssignmentStep[] {
 
 function formatTime(iso: string | undefined): string {
   if (!iso) return "--:--";
-  try {
-    return new Date(iso).toLocaleTimeString("vi-VN", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    });
-  } catch {
-    return "--:--";
-  }
+
+  const date = new Date(iso);
+
+  if (Number.isNaN(date.getTime())) return "--:--";
+
+  return date.toLocaleTimeString("vi-VN", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+}
+
+function formatWhen(iso: string | undefined): string {
+  if (!iso) return "—";
+
+  const date = new Date(iso);
+
+  if (Number.isNaN(date.getTime())) return "—";
+
+  const now = new Date();
+  const isToday =
+    date.getFullYear() === now.getFullYear() &&
+    date.getMonth() === now.getMonth() &&
+    date.getDate() === now.getDate();
+  const dayLabel = isToday
+    ? "Hôm nay"
+    : date.toLocaleDateString("vi-VN", {
+        day: "2-digit",
+        month: "2-digit",
+      });
+
+  return `${dayLabel} · ${formatTime(iso)}`;
+}
+
+function formatDuration(minutes: number | null | undefined): string {
+  if (minutes == null || !Number.isFinite(minutes) || minutes <= 0) return "—";
+
+  const total = Math.round(minutes);
+  const hours = Math.floor(total / 60);
+  const mins = total % 60;
+
+  if (hours > 0 && mins > 0) return `${hours} giờ ${mins} phút`;
+  if (hours > 0) return `${hours} giờ`;
+
+  return `${mins} phút`;
+}
+
+function formatDistance(km: number | null | undefined): string {
+  if (km == null || !Number.isFinite(km) || km < 0) return "—";
+
+  return `${km.toLocaleString("vi-VN", { maximumFractionDigits: 1 })} km`;
+}
+
+const currencyFormatter = new Intl.NumberFormat("vi-VN", {
+  style: "currency",
+  currency: "VND",
+  maximumFractionDigits: 0,
+});
+
+function formatCurrency(amount: number | null | undefined): string {
+  if (amount == null || !Number.isFinite(amount)) return "—";
+
+  return currencyFormatter.format(amount);
+}
+
+function formatInspection(iso: string | null | undefined): string {
+  if (!iso) return "";
+
+  const date = new Date(iso);
+
+  if (Number.isNaN(date.getTime())) return "";
+
+  return `Đăng kiểm ${String(date.getMonth() + 1).padStart(
+    2,
+    "0"
+  )}/${date.getFullYear()}`;
 }
 
 export function normalizeTripDetail(apiData: unknown): TripDetail {
   const data = apiData as {
-    trip?: { tripCode?: string; routeName?: string; departureAt?: string; status?: string; id?: string; expectedArrivalAt?:string;  };
-    vehicle?: { plateNumber?: string; vehicleModel?: string; id?: string};
+    trip?: {
+      id?: string;
+      tripCode?: string;
+      routeName?: string;
+      originAreaName?: string;
+      destinationAreaName?: string;
+      departureAt?: string;
+      expectedArrivalAt?: string;
+      status?: string;
+    };
+    vehicle?: {
+      plateNumber?: string;
+      vehicleModel?: string;
+      passengerCapacity?: number | null;
+      inspectionExpiresOn?: string | null;
+      color?: string | null;
+    };
     assignmentStatus?: string;
     passengerCount?: number;
+    expectedRevenue?: number;
+    distanceKm?: number | null;
+    durationMinutes?: number | null;
+    originProvince?: string | null;
+    destinationProvince?: string | null;
     passengers?: Array<{
       id?: string;
       passengerName?: string;
@@ -137,10 +230,10 @@ export function normalizeTripDetail(apiData: unknown): TripDetail {
       dropoffAddress?: string;
       seatCode?: string;
       fareAmount?: number;
-      paymentCollected?: boolean;
-      collectedAmount?: number;
+      paymentCollected?: boolean | null;
+      collectedAmount?: number | null;
       status?: string;
-      passengerTripStatus?: string;
+      passengerTripStatus?: string | null;
       createdAt?: string;
     }>;
   };
@@ -148,51 +241,76 @@ export function normalizeTripDetail(apiData: unknown): TripDetail {
   const trip = data.trip ?? {};
   const vehicle = data.vehicle ?? {};
   const passengers = data.passengers ?? [];
-  const departAt = trip.departureAt ? new Date(trip.departureAt) : null;
   const departTime = formatTime(trip.departureAt);
   const passengerCount = data.passengerCount ?? passengers.length;
+  const totalSeats = vehicle.passengerCapacity ?? 16;
+  const availableSeats = Math.max(0, totalSeats - passengerCount);
   const assignmentStatus = data.assignmentStatus || "ASSIGNED";
   const assignmentMeta =
     ASSIGNMENT_META[assignmentStatus] ?? ASSIGNMENT_META.ASSIGNED;
+  const originName =
+    trip.originAreaName || data.originProvince || "Điểm khởi hành";
+  const destinationName =
+    trip.destinationAreaName || data.destinationProvince || "Điểm kết thúc";
+  const expectedRevenue =
+    data.expectedRevenue ??
+    passengers.reduce((sum, p) => sum + (p.fareAmount ?? 0), 0);
+  const pickupPointCount = new Set(
+    passengers.map((p) => p.pickupAddress).filter(Boolean)
+  ).size;
 
-  const routePoints: { time: string; name: string; address: string; kind: "start" | "end" }[] = [
+  const routePoints: TripRoutePoint[] = [
     {
       time: departTime,
-      name: "Điểm khởi hành",
-      address: "",
+      name: originName,
+      address:
+        data.originProvince && data.originProvince !== originName
+          ? data.originProvince
+          : "",
       kind: "start",
     },
     {
-      time: formatTime(trip.expectedArrivalAt as string | undefined),
-      name: "Điểm kết thúc",
-      address: "",
+      time: formatTime(trip.expectedArrivalAt),
+      name: destinationName,
+      address:
+        data.destinationProvince && data.destinationProvince !== destinationName
+          ? data.destinationProvince
+          : "",
       kind: "end",
     },
   ];
 
   return {
     code: trip.tripCode || trip.id || "",
-    when: departAt ? `Hôm nay · ${departTime}` : "—",
-    route: trip.routeName || "",
+    when: formatWhen(trip.departureAt),
+    route:
+      trip.routeName ||
+      (originName !== destinationName
+        ? `${originName} → ${destinationName}`
+        : originName),
     statusLabel: STATUS_LABELS[trip.status || ""] || trip.status || "—",
     tripStatus: trip.status || "",
     assignmentStatus,
     departTime,
-    totalSeats: 16,
+    totalSeats,
     routePoints,
     stats: [
-      { label: "Thời lượng", value: "—" },
-      { label: "Quãng đường", value: "—" },
+      { label: "Thời lượng", value: formatDuration(data.durationMinutes) },
+      { label: "Quãng đường", value: formatDistance(data.distanceKm) },
       {
         label: "Ghế trống",
-        value: `${Math.max(0, 16 - passengerCount)} / 16`,
+        value: `${availableSeats} / ${totalSeats}`,
       },
-      { label: "Tiền mặt dự kiến", value: "—" },
+      {
+        label: "Tiền mặt dự kiến",
+        value: formatCurrency(expectedRevenue),
+      },
     ],
     vehicle: {
       name: vehicle.vehicleModel || "Xe",
       plate: vehicle.plateNumber || "",
-      meta: "",
+      meta: formatInspection(vehicle.inspectionExpiresOn),
+      color: vehicle.color || "",
     },
     stops: routePoints.map((p, i) => ({
       id: `stop-${i}`,
@@ -207,16 +325,24 @@ export function normalizeTripDetail(apiData: unknown): TripDetail {
       name: p.passengerName || "",
       phone: p.passengerPhone || "",
       phoneRaw: p.passengerPhone || "",
-      picked: p.passengerTripStatus === "PICKED_UP",
-      paid: !!p.paymentCollected,
+      picked:
+        p.passengerTripStatus === "PICKED_UP" ||
+        p.passengerTripStatus === "DROPPED_OFF",
+      paid: !!p.paymentCollected || (p.collectedAmount ?? 0) > 0,
       pickup: p.pickupAddress || "",
       dropoff: p.dropoffAddress || "",
     })),
     summary: [
       { label: "Số khách", value: `${passengerCount} khách` },
-      { label: "Ghế trống", value: `${Math.max(0, 16 - passengerCount)} chỗ` },
-      { label: "Tiền mặt dự kiến", value: "—" },
-      { label: "Điểm đón", value: "—" },
+      { label: "Ghế trống", value: `${availableSeats} chỗ` },
+      {
+        label: "Tiền mặt dự kiến",
+        value: formatCurrency(expectedRevenue),
+      },
+      {
+        label: "Điểm đón",
+        value: pickupPointCount > 0 ? `${pickupPointCount} điểm` : "—",
+      },
     ],
     assignment: {
       label: assignmentMeta.label,

@@ -22,14 +22,26 @@ export interface DriverTripRef {
   routeId?: string;
   routeCode?: string;
   routeName?: string;
+  originAreaName?: string;
+  destinationAreaName?: string;
   departureAt?: string;
   expectedArrivalAt?: string;
+  actualDepartureAt?: string;
+  actualArrivalAt?: string;
+  baseFareAmount?: number | null;
 }
 
 export interface DriverVehicleRef {
   id?: string;
   plateNumber?: string;
   vehicleModel?: string;
+  passengerCapacity?: number | null;
+  inspectionExpiresOn?: string | null;
+  vehicleType?: string | null;
+  manufacturingYear?: number | null;
+  fuelType?: string | null;
+  color?: string | null;
+  status?: string;
 }
 
 export interface DriverTripListItem {
@@ -41,6 +53,13 @@ export interface DriverTripListItem {
 
 export interface DriverTripDetail extends DriverTripListItem {
   passengers?: unknown[];
+  acceptedAt?: string | null;
+  rejectionReason?: string | null;
+  expectedRevenue?: number;
+  distanceKm?: number | null;
+  durationMinutes?: number | null;
+  originProvince?: string | null;
+  destinationProvince?: string | null;
 }
 
 export interface ScheduleTrip {
