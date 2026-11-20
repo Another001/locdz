@@ -9,6 +9,7 @@ import {
   fetchTripDetail,
   reportIncident,
   updatePassengerStatus,
+  updateScheduleAssignmentStatus,
   updateScheduleTripStatus,
 } from "@/lib/api/driver-trips";
 import { normalizeTripDetail } from "@/lib/api/driver-normalize";
@@ -131,6 +132,29 @@ function TripDetailContent() {
       alert(messageOf(err, "Không nhận được chuyến."));
     } finally {
       stopMutating("accept");
+    }
+  };
+
+  const handleAssignmentStatus = async (
+    status: "PREPARING" | "ARRIVED"
+  ) => {
+    if (!tripId) return;
+    const action = status === "PREPARING" ? "preparing" : "arrived";
+    startMutating(action);
+    try {
+      await updateScheduleAssignmentStatus(tripId, status);
+      await loadTrip();
+    } catch (err: unknown) {
+      alert(
+        messageOf(
+          err,
+          status === "PREPARING"
+            ? "Không cập nhật được trạng thái chuẩn bị."
+            : "Không xác nhận được đã tới."
+        )
+      );
+    } finally {
+      stopMutating(action);
     }
   };
 
@@ -306,8 +330,13 @@ function TripDetailContent() {
             <div className="grid gap-[clamp(18px,2.4vw,24px)]">
               <AssignmentPanel
                 assignment={tripData.assignment}
+                assignmentStatus={tripData.assignmentStatus}
                 onAccept={handleAccept}
+                onPreparing={() => void handleAssignmentStatus("PREPARING")}
+                onArrived={() => void handleAssignmentStatus("ARRIVED")}
                 isAccepting={isMutating("accept")}
+                isPreparing={isMutating("preparing")}
+                isArrived={isMutating("arrived")}
               />
               <TripInfoPanel
                 departTime={tripData.departTime}

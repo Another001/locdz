@@ -13,16 +13,29 @@ const DOT: Record<AssignmentStepState, string> = {
   upcoming: "border-slate-300 bg-surface",
 };
 
+const ACTION_BUTTON =
+  "inline-flex h-12 grow items-center justify-center gap-[9px] rounded-xl bg-sky-700 px-[22px] text-sm font-bold leading-none text-white shadow-[0_10px_24px_-14px_rgba(3,105,161,0.9)] transition-colors hover:bg-sky-800 disabled:opacity-60 min-[481px]:grow-0";
+
 interface AssignmentPanelProps {
   assignment: TripDetailAssignment;
+  assignmentStatus: string;
   onAccept: () => void;
+  onPreparing: () => void;
+  onArrived: () => void;
   isAccepting: boolean;
+  isPreparing: boolean;
+  isArrived: boolean;
 }
 
 export function AssignmentPanel({
   assignment,
+  assignmentStatus,
   onAccept,
+  onPreparing,
+  onArrived,
   isAccepting,
+  isPreparing,
+  isArrived,
 }: AssignmentPanelProps) {
   return (
     <section aria-labelledby="tcdLenhTitle" className={PANEL}>
@@ -36,7 +49,7 @@ export function AssignmentPanel({
           </span>
         </span>
       </div>
-
+      
       <ol className="mt-4 grid grid-cols-2 gap-2.5 min-[521px]:grid-cols-4">
         {assignment.steps.map((step, index) => {
           const current = step.state === "current";
@@ -77,15 +90,41 @@ export function AssignmentPanel({
       </p>
 
       <div className="mt-4 flex flex-wrap gap-2.5">
-        <button
-          type="button"
-          onClick={onAccept}
-          disabled={isAccepting}
-          className="inline-flex h-12 grow items-center justify-center gap-[9px] rounded-xl bg-sky-700 px-[22px] text-sm font-bold leading-none text-white shadow-[0_10px_24px_-14px_rgba(3,105,161,0.9)] transition-colors hover:bg-sky-800 min-[481px]:grow-0"
-        >
-          <Icon name="check" className="h-[18px] w-[18px]" />
-          Tôi đã nhận lệnh
-        </button>
+        {assignmentStatus === "ASSIGNED" ? (
+          <button
+            type="button"
+            onClick={onAccept}
+            disabled={isAccepting}
+            className={ACTION_BUTTON}
+          >
+            <Icon name="check" className="h-[18px] w-[18px]" />
+            {isAccepting ? "Đang xử lý..." : "Tôi đã nhận lệnh"}
+          </button>
+        ) : null}
+
+        {assignmentStatus === "ACCEPTED" ? (
+          <button
+            type="button"
+            onClick={onPreparing}
+            disabled={isPreparing}
+            className={ACTION_BUTTON}
+          >
+            <Icon name="shield" className="h-[18px] w-[18px]" />
+            {isPreparing ? "Đang xử lý..." : "Đã chuẩn bị"}
+          </button>
+        ) : null}
+
+        {assignmentStatus === "PREPARING" ? (
+          <button
+            type="button"
+            onClick={onArrived}
+            disabled={isArrived}
+            className={ACTION_BUTTON}
+          >
+            <Icon name="pin" className="h-[18px] w-[18px]" />
+            {isArrived ? "Đang xử lý..." : "Đã tới"}
+          </button>
+        ) : null}
       </div>
     </section>
   );

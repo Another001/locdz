@@ -1,4 +1,4 @@
-import type { TripDetail } from "@/types";
+import type { AssignmentStep, TripDetail } from "@/types";
 import type {
   DriverTripDetail,
   DriverTripListItem,
@@ -48,6 +48,68 @@ const STATUS_LABELS: Record<string, string> = {
   REJECTED: "Đã từ chối",
 };
 
+const ASSIGNMENT_META: Record<string, { label: string; hint: string }> = {
+  ASSIGNED: {
+    label: "Chưa nhận lệnh",
+    hint: "Xác nhận nhận lệnh để bắt đầu chuẩn bị.",
+  },
+  ACCEPTED: {
+    label: "Đã nhận lệnh",
+    hint: "Bắt đầu chuẩn bị trước giờ chạy.",
+  },
+  PREPARING: {
+    label: "Đang chuẩn bị",
+    hint: "Xác nhận đã tới điểm đón trước khi khởi hành.",
+  },
+  ARRIVED: {
+    label: "Đã tới",
+    hint: "Đã có mặt tại điểm đón, có thể bắt đầu chuyến.",
+  },
+  COMPLETED: {
+    label: "Hoàn thành",
+    hint: "Chuyến đã hoàn thành.",
+  },
+  REJECTED: {
+    label: "Đã từ chối",
+    hint: "Bạn đã từ chối chuyến này.",
+  },
+  REPLACED: {
+    label: "Đã bị thay",
+    hint: "Chuyến đã được phân công cho tài xế khác.",
+  },
+};
+
+const ASSIGNMENT_STEP_LABELS = [
+  "Chưa nhận lệnh",
+  "Đã nhận lệnh",
+  "Đã chuẩn bị",
+  "Đã tới",
+];
+
+function buildAssignmentSteps(status: string): AssignmentStep[] {
+  if (status === "REJECTED" || status === "REPLACED") {
+    return ASSIGNMENT_STEP_LABELS.map(
+      (label): AssignmentStep => ({ label, state: "upcoming" })
+    );
+  }
+
+  const completed =
+    status === "ACCEPTED"
+      ? 2
+      : status === "PREPARING"
+        ? 3
+        : status === "ARRIVED" || status === "COMPLETED"
+          ? 4
+          : 0;
+
+  return ASSIGNMENT_STEP_LABELS.map((label, index): AssignmentStep => {
+    const state: AssignmentStep["state"] =
+      index < completed ? "done" : index === completed ? "current" : "upcoming";
+
+    return { label, state };
+  });
+}
+
 function formatTime(iso: string | undefined): string {
   if (!iso) return "--:--";
   try {
@@ -89,6 +151,9 @@ export function normalizeTripDetail(apiData: unknown): TripDetail {
   const departAt = trip.departureAt ? new Date(trip.departureAt) : null;
   const departTime = formatTime(trip.departureAt);
   const passengerCount = data.passengerCount ?? passengers.length;
+  const assignmentStatus = data.assignmentStatus || "ASSIGNED";
+  const assignmentMeta =
+    ASSIGNMENT_META[assignmentStatus] ?? ASSIGNMENT_META.ASSIGNED;
 
   const routePoints: { time: string; name: string; address: string; kind: "start" | "end" }[] = [
     {
@@ -111,7 +176,7 @@ export function normalizeTripDetail(apiData: unknown): TripDetail {
     route: trip.routeName || "",
     statusLabel: STATUS_LABELS[trip.status || ""] || trip.status || "—",
     tripStatus: trip.status || "",
-    assignmentStatus: data.assignmentStatus || "",
+    assignmentStatus,
     departTime,
     totalSeats: 16,
     routePoints,
@@ -154,25 +219,9 @@ export function normalizeTripDetail(apiData: unknown): TripDetail {
       { label: "Điểm đón", value: "—" },
     ],
     assignment: {
-      label:
-        data.assignmentStatus === "ACCEPTED"
-          ? "Đã nhận lệnh"
-          : "Chưa nhận lệnh",
-      steps: [
-        {
-          label: "Chưa nhận lệnh",
-          state:
-            data.assignmentStatus === "ACCEPTED" ? "done" : "current",
-        },
-        {
-          label: "Đã nhận lệnh",
-          state:
-            data.assignmentStatus === "ACCEPTED" ? "done" : "upcoming",
-        },
-        { label: "Đang chuẩn bị", state: "upcoming" },
-        { label: "Đã có mặt", state: "upcoming" },
-      ],
-      hint: "Xác nhận đã có mặt tại bến trước khi bắt đầu chuyến.",
+      label: assignmentMeta.label,
+      steps: buildAssignmentSteps(assignmentStatus),
+      hint: assignmentMeta.hint,
     },
   };
 }
