@@ -199,6 +199,8 @@ export interface TripDetail {
   when: string;
   route: string;
   statusLabel: string;
+  tripStatus: string;
+  assignmentStatus: string;
   departTime: string;
   totalSeats: number;
   routePoints: TripRoutePoint[];

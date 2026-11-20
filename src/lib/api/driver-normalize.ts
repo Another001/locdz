@@ -110,6 +110,8 @@ export function normalizeTripDetail(apiData: unknown): TripDetail {
     when: departAt ? `Hôm nay · ${departTime}` : "—",
     route: trip.routeName || "",
     statusLabel: STATUS_LABELS[trip.status || ""] || trip.status || "—",
+    tripStatus: trip.status || "",
+    assignmentStatus: data.assignmentStatus || "",
     departTime,
     totalSeats: 16,
     routePoints,

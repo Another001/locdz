@@ -5,6 +5,8 @@ export const tripDetail: TripDetail = {
   when: "Hôm nay · 14:30",
   route: "Bến xe Giáp Bát → Bến xe Hòa Bình",
   statusLabel: "Sắp tới",
+  tripStatus: "SCHEDULED",
+  assignmentStatus: "ASSIGNED",
   departTime: "14:30",
   totalSeats: 16,
   routePoints: [

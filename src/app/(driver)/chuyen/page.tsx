@@ -150,6 +150,11 @@ function TripDetailContent() {
     }
   };
 
+  const handleOpenOperate = () => {
+    if (!tripId) return;
+    router.push(`/dieu-hanh?tripId=${tripId}`);
+  };
+
   const handleIncidentSubmit = async (
     type: string,
     description: string
@@ -229,7 +234,12 @@ function TripDetailContent() {
   }
 
   const canStart =
-    tripData.statusLabel !== "Đang chạy" && !isMutating("start");
+    tripData.tripStatus === "SCHEDULED" &&
+    ["ACCEPTED", "PREPARING", "ARRIVED"].includes(tripData.assignmentStatus);
+
+  const canOpenOperate =
+    tripData.tripStatus === "IN_PROGRESS" ||
+    tripData.tripStatus === "COMPLETED";
 
   return (
     <main id="main">
@@ -256,16 +266,29 @@ function TripDetailContent() {
           </header>
 
           <div className="mt-5 flex flex-wrap items-center gap-2.5">
-            <button
-              type="button"
-              onClick={handleStartTrip}
-              //disabled={!canStart}
-              aria-describedby="tcdLenhHint"
-              className={PRIMARY}
-            >
-              Điều hành chuyến
-              <Icon name="arrow-right" className="h-[18px] w-[18px]" />
-            </button>
+            {canStart ? (
+              <button
+                type="button"
+                onClick={handleStartTrip}
+                disabled={isMutating("start")}
+                aria-describedby="tcdLenhHint"
+                className={PRIMARY}
+              >
+                {isMutating("start") ? "Đang khởi hành..." : "Bắt đầu chuyến"}
+                <Icon name="arrow-right" className="h-[18px] w-[18px]" />
+              </button>
+            ) : null}
+
+            {canOpenOperate ? (
+              <button
+                type="button"
+                onClick={handleOpenOperate}
+                className={PRIMARY}
+              >
+                Vào điều hành
+                <Icon name="arrow-right" className="h-[18px] w-[18px]" />
+              </button>
+            ) : null}
 
             <button
               type="button"
