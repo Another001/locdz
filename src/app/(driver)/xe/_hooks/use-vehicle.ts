@@ -4,15 +4,15 @@ import { useCallback, useEffect, useState } from "react";
 
 import type { Vehicle, VehicleDocument, VehicleTrip } from "@/types";
 import {
-  fetchDriverVehicle,
-  fetchDriverVehicleDocuments,
-  fetchDriverVehicleRecentTrips,
-} from "@/lib/api/driver-profile";
+  getVehicleAPI,
+  listVehicleDocumentsAPI,
+  listVehicleRecentTripsAPI,
+} from "@/api/driver/vehicle/api";
 import {
   normalizeVehicle,
   normalizeVehicleDocuments,
   normalizeVehicleRecentTrips,
-} from "@/lib/api/driver-vehicle-normalize";
+} from "@/lib/driver/vehicle";
 
 export interface UseVehicleResult {
   vehicle: Vehicle | null;
@@ -33,9 +33,9 @@ const TIP_NOTE =
 
 async function loadVehicleData() {
   const [vehicleData, documentsData, tripsData] = await Promise.all([
-    fetchDriverVehicle(),
-    fetchDriverVehicleDocuments(),
-    fetchDriverVehicleRecentTrips(),
+    getVehicleAPI(),
+    listVehicleDocumentsAPI(),
+    listVehicleRecentTripsAPI(),
   ]);
 
   return {

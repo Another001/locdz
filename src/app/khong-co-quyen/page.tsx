@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { Icon } from "@/components/ui/icon";
-import { logoutRequest } from "@/lib/api/auth-client";
+import { logoutRequest } from "@/lib/auth/session";
 
 export default function ForbiddenPage() {
   const router = useRouter();

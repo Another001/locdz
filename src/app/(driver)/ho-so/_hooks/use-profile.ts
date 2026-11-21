@@ -8,11 +8,11 @@ import type {
   UpdateDriverProfileRequest,
 } from "@/types/driver";
 
+import { DriverApiError } from "@/api/driver/errors";
 import {
-  DriverProfileApiError,
-  fetchDriverProfile,
-  updateDriverProfile,
-} from "@/lib/api/driver-profile";
+  getProfileAPI,
+  updateProfileAPI,
+} from "@/api/driver/profile/api";
 
 function normalizeProfile(data: DriverProfileResponse): DriverProfile {
   const initial = data.fullName?.charAt(0).toUpperCase();
@@ -55,10 +55,10 @@ export function useProfile() {
     setLoading(true);
     setError(null);
     try {
-      setProfile(normalizeProfile(await fetchDriverProfile()));
+      setProfile(normalizeProfile(await getProfileAPI()));
     } catch (err: unknown) {
       setError(
-        err instanceof DriverProfileApiError
+        err instanceof DriverApiError
           ? err.message
           : "Không tải được hồ sơ."
       );
@@ -70,7 +70,7 @@ export function useProfile() {
   useEffect(() => {
     let cancelled = false;
 
-    fetchDriverProfile()
+    getProfileAPI()
       .then((data) => {
         if (!cancelled) {
           setProfile(normalizeProfile(data));
@@ -80,7 +80,7 @@ export function useProfile() {
       .catch((loadError: unknown) => {
         if (!cancelled) {
           setError(
-            loadError instanceof DriverProfileApiError
+            loadError instanceof DriverApiError
               ? loadError.message
               : "Không tải được hồ sơ."
           );
@@ -98,12 +98,12 @@ export function useProfile() {
   const handleUpdate = useCallback(
     async (data: UpdateDriverProfileRequest) => {
       try {
-        const result = await updateDriverProfile(data);
+        const result = await updateProfileAPI(data);
         setProfile(normalizeProfile(result));
         return true;
       } catch (err: unknown) {
         setError(
-          err instanceof DriverProfileApiError
+          err instanceof DriverApiError
             ? err.message
             : "Cập nhật thất bại."
         );

@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 
-import { AuthApiError, loginRequest } from "@/lib/api/auth-client";
+import { AuthApiError, loginRequest } from "@/lib/auth/session";
 import { safeRedirectPath } from "@/lib/auth/paths";
 
 export type LoginStatusKind = "info" | "error" | "success";

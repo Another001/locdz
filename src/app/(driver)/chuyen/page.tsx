@@ -4,13 +4,13 @@ import { Suspense, useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Icon } from "@/components/ui/icon";
 import {
-  acceptScheduleTrip,
-  fetchTripDetail,
-  reportIncident,
-  updateScheduleAssignmentStatus,
-  updateScheduleTripStatus,
-} from "@/lib/api/driver-trips";
-import { normalizeTripDetail } from "@/lib/api/driver-normalize";
+  acceptTripAPI,
+  getTripAPI,
+  reportIncidentAPI,
+  updateAssignmentStatusAPI,
+  updateTripStatusAPI,
+} from "@/api/driver/trips/api";
+import { normalizeTripDetail } from "@/lib/driver/trips";
 import type { TripDetail } from "@/types";
 
 import { AssignmentPanel } from "./_components/assignment-panel";
@@ -73,7 +73,7 @@ function TripDetailContent() {
     setLoading(true);
     setError(null);
     try {
-      const data = await fetchTripDetail(tripId);
+      const data = await getTripAPI(tripId);
       setTripData(normalizeTripDetail(data));
     } catch (err: unknown) {
       setError(messageOf(err, "Không tải được chi tiết chuyến."));
@@ -87,7 +87,7 @@ function TripDetailContent() {
 
     let cancelled = false;
 
-    fetchTripDetail(tripId)
+    getTripAPI(tripId)
       .then((data) => {
         if (!cancelled) {
           setTripData(normalizeTripDetail(data));
@@ -124,7 +124,7 @@ function TripDetailContent() {
     if (!tripId) return;
     startMutating("accept");
     try {
-      await acceptScheduleTrip(tripId);
+      await acceptTripAPI(tripId);
       await loadTrip();
     } catch (err: unknown) {
       alert(messageOf(err, "Không nhận được chuyến."));
@@ -140,7 +140,7 @@ function TripDetailContent() {
     const action = status === "PREPARING" ? "preparing" : "arrived";
     startMutating(action);
     try {
-      await updateScheduleAssignmentStatus(tripId, status);
+      await updateAssignmentStatusAPI(tripId, status);
       await loadTrip();
     } catch (err: unknown) {
       alert(
@@ -161,7 +161,7 @@ function TripDetailContent() {
     startMutating("start");
     // console.log("try tryt")
     try {
-      await updateScheduleTripStatus(tripId, "IN_PROGRESS");
+      await updateTripStatusAPI(tripId, "IN_PROGRESS");
       await loadTrip();
       // console.log("done try")
       router.push(`/dieu-hanh?tripId=${tripId}`)
@@ -184,7 +184,7 @@ function TripDetailContent() {
     if (!tripId) return;
     startMutating("incident");
     try {
-      await reportIncident(tripId, type, description);
+      await reportIncidentAPI(tripId, type, description);
       setIncidentOpen(false);
       await loadTrip();
     } catch (err: unknown) {

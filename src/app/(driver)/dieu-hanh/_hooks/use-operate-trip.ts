@@ -9,13 +9,13 @@ import {
 
 import type { OperateTrip } from "@/types";
 import {
-  collectPassengerPayment,
-  fetchTripDetail,
-  reportIncident,
-  updatePassengerStatus,
-  updateScheduleTripStatus,
-} from "@/lib/api/driver-trips";
-import { normalizeOperateTrip } from "@/lib/api/operate-normalize";
+  collectPassengerPaymentAPI,
+  getTripAPI,
+  reportIncidentAPI,
+  updatePassengerStatusAPI,
+  updateTripStatusAPI,
+} from "@/api/driver/trips/api";
+import { normalizeOperateTrip } from "@/lib/driver/operate";
 
 const subscribeToClock = (onChange: () => void) => {
   const timer = setInterval(onChange, 60_000);
@@ -66,7 +66,7 @@ export function useOperateTrip({ tripId }: UseOperateTripProps) {
     setLoading(true);
     setError(null);
     try {
-      const data = await fetchTripDetail(tripId);
+      const data = await getTripAPI(tripId);
       setTrip(normalizeOperateTrip(data));
     } catch (err: unknown) {
       setError(errorMessage(err));
@@ -80,7 +80,7 @@ export function useOperateTrip({ tripId }: UseOperateTripProps) {
 
     let cancelled = false;
 
-    fetchTripDetail(tripId)
+    getTripAPI(tripId)
       .then((data) => {
         if (!cancelled) {
           setTrip(normalizeOperateTrip(data));
@@ -117,14 +117,14 @@ export function useOperateTrip({ tripId }: UseOperateTripProps) {
 
   const startTrip = useCallback(async () => {
     await runAction("start", async () => {
-      await updateScheduleTripStatus(tripId, "IN_PROGRESS");
+      await updateTripStatusAPI(tripId, "IN_PROGRESS");
     });
     await loadTrip();
   }, [tripId, runAction, loadTrip]);
 
   const completeTrip = useCallback(async () => {
     await runAction("complete", async () => {
-      await updateScheduleTripStatus(tripId, "COMPLETED");
+      await updateTripStatusAPI(tripId, "COMPLETED");
     });
     await loadTrip();
   }, [tripId, runAction, loadTrip]);
@@ -132,7 +132,7 @@ export function useOperateTrip({ tripId }: UseOperateTripProps) {
   const pickUpPassenger = useCallback(
     async (ticketId: string) => {
       await runAction(`pickup-${ticketId}`, async () => {
-        await updatePassengerStatus(tripId, ticketId, "PICKED_UP");
+        await updatePassengerStatusAPI(tripId, ticketId, "PICKED_UP");
       });
       await loadTrip();
     },
@@ -142,7 +142,7 @@ export function useOperateTrip({ tripId }: UseOperateTripProps) {
   const dropOffPassenger = useCallback(
     async (ticketId: string) => {
       await runAction(`dropoff-${ticketId}`, async () => {
-        await updatePassengerStatus(tripId, ticketId, "DROPPED_OFF");
+        await updatePassengerStatusAPI(tripId, ticketId, "DROPPED_OFF");
       });
       await loadTrip();
     },
@@ -152,7 +152,7 @@ export function useOperateTrip({ tripId }: UseOperateTripProps) {
   const collectPayment = useCallback(
     async (ticketId: string, collectedAmount: number) => {
       await runAction(`payment-${ticketId}`, async () => {
-        await collectPassengerPayment(tripId, ticketId, collectedAmount);
+        await collectPassengerPaymentAPI(tripId, ticketId, collectedAmount);
       });
       await loadTrip();
     },
@@ -162,7 +162,7 @@ export function useOperateTrip({ tripId }: UseOperateTripProps) {
   const submitIncident = useCallback(
     async (type: string, description: string) => {
       await runAction("incident", async () => {
-        await reportIncident(tripId, type, description);
+        await reportIncidentAPI(tripId, type, description);
       });
     },
     [tripId, runAction]

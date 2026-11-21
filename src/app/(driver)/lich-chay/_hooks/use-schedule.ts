@@ -10,14 +10,14 @@ import {
 
 import type { Trip } from "@/types";
 import type { ScheduleTrip } from "@/types/driver";
+import { DriverApiError } from "@/api/driver/errors";
 import {
-  DriverApiError,
-  acceptScheduleTrip,
-  fetchScheduleTrips,
-  rejectScheduleTrip,
-  updateScheduleAssignmentStatus,
-  updateScheduleTripStatus,
-} from "@/lib/api/driver-trips";
+  acceptTripAPI,
+  listTripsAPI,
+  rejectTripAPI,
+  updateAssignmentStatusAPI,
+  updateTripStatusAPI,
+} from "@/api/driver/trips/api";
 
 import {
   addDays,
@@ -82,7 +82,7 @@ export function useSchedule() {
     setError(null);
 
     try {
-      setTrips(await fetchScheduleTrips());
+      setTrips(await listTripsAPI());
     } catch (loadError) {
       setError(errorMessage(loadError));
     } finally {
@@ -93,7 +93,7 @@ export function useSchedule() {
   useEffect(() => {
     let cancelled = false;
 
-    fetchScheduleTrips()
+    listTripsAPI()
       .then((data) => {
         if (!cancelled) {
           setTrips(data);
@@ -171,7 +171,7 @@ export function useSchedule() {
   const acceptTrip = useCallback(
     (trip: Trip) =>
       runAction(trip.id, async () => {
-        const result = await acceptScheduleTrip(trip.id);
+        const result = await acceptTripAPI(trip.id);
 
         setTrips((current) =>
           current.map((item) =>
@@ -192,7 +192,7 @@ export function useSchedule() {
   const rejectTrip = useCallback(
     (trip: Trip, reason: string) =>
       runAction(trip.id, async () => {
-        const result = await rejectScheduleTrip(trip.id, reason);
+        const result = await rejectTripAPI(trip.id, reason);
 
         setTrips((current) =>
           current.map((item) =>
@@ -213,7 +213,7 @@ export function useSchedule() {
   const setAssignmentStatus = useCallback(
     (trip: Trip, status: "PREPARING" | "ARRIVED") =>
       runAction(trip.id, async () => {
-        const result = await updateScheduleAssignmentStatus(trip.id, status);
+        const result = await updateAssignmentStatusAPI(trip.id, status);
 
         setTrips((current) =>
           current.map((item) =>
@@ -233,7 +233,7 @@ export function useSchedule() {
   const setTripStatus = useCallback(
     (trip: Trip, status: "IN_PROGRESS" | "COMPLETED") =>
       runAction(trip.id, async () => {
-        const result = await updateScheduleTripStatus(trip.id, status);
+        const result = await updateTripStatusAPI(trip.id, status);
 
         setTrips((current) =>
           current.map((item) =>

@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 
 import { useSessionStore } from "@/global-states/session-store";
-import { getCurrentUser } from "@/lib/api/auth-client";
+import { getCurrentUser } from "@/lib/auth/session";
 
 export function SessionSync() {
   const setUser = useSessionStore((state) => state.setUser);
