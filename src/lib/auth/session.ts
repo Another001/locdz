@@ -4,7 +4,7 @@ import { logoutAPI } from "@/api/auth/api/logout";
 import { ApiError } from "@/api/types";
 import { useSessionStore } from "@/global-states/session-store";
 import { userFromAccessToken } from "@/lib/auth/token";
-import { STORAGE_KEYS, getItem, removeItem, setItem } from "@/lib/storage";
+import { STORAGE_KEYS, getItem, removeItem, setItem } from "@/utils/storage";
 import type { AuthUser, LoginInput } from "@/types/auth";
 
 export class AuthApiError extends Error {

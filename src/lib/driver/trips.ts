@@ -4,6 +4,14 @@ import type {
   DriverTripListItem,
   ScheduleTrip,
 } from "@/types/driver";
+import {
+  formatCurrency,
+  formatDistance,
+  formatDuration,
+  formatInspection,
+  formatLocalTime,
+  formatWhen,
+} from "@/utils/format";
 
 export function normalizeDriverTrip(
   item: DriverTripListItem,
@@ -116,86 +124,6 @@ function buildAssignmentSteps(status: string): AssignmentStep[] {
   });
 }
 
-function formatTime(iso: string | undefined): string {
-  if (!iso) return "--:--";
-
-  const date = new Date(iso);
-
-  if (Number.isNaN(date.getTime())) return "--:--";
-
-  return date.toLocaleTimeString("vi-VN", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
-}
-
-function formatWhen(iso: string | undefined): string {
-  if (!iso) return "—";
-
-  const date = new Date(iso);
-
-  if (Number.isNaN(date.getTime())) return "—";
-
-  const now = new Date();
-  const isToday =
-    date.getFullYear() === now.getFullYear() &&
-    date.getMonth() === now.getMonth() &&
-    date.getDate() === now.getDate();
-  const dayLabel = isToday
-    ? "Hôm nay"
-    : date.toLocaleDateString("vi-VN", {
-        day: "2-digit",
-        month: "2-digit",
-      });
-
-  return `${dayLabel} · ${formatTime(iso)}`;
-}
-
-function formatDuration(minutes: number | null | undefined): string {
-  if (minutes == null || !Number.isFinite(minutes) || minutes <= 0) return "—";
-
-  const total = Math.round(minutes);
-  const hours = Math.floor(total / 60);
-  const mins = total % 60;
-
-  if (hours > 0 && mins > 0) return `${hours} giờ ${mins} phút`;
-  if (hours > 0) return `${hours} giờ`;
-
-  return `${mins} phút`;
-}
-
-function formatDistance(km: number | null | undefined): string {
-  if (km == null || !Number.isFinite(km) || km < 0) return "—";
-
-  return `${km.toLocaleString("vi-VN", { maximumFractionDigits: 1 })} km`;
-}
-
-const currencyFormatter = new Intl.NumberFormat("vi-VN", {
-  style: "currency",
-  currency: "VND",
-  maximumFractionDigits: 0,
-});
-
-function formatCurrency(amount: number | null | undefined): string {
-  if (amount == null || !Number.isFinite(amount)) return "—";
-
-  return currencyFormatter.format(amount);
-}
-
-function formatInspection(iso: string | null | undefined): string {
-  if (!iso) return "";
-
-  const date = new Date(iso);
-
-  if (Number.isNaN(date.getTime())) return "";
-
-  return `Đăng kiểm ${String(date.getMonth() + 1).padStart(
-    2,
-    "0"
-  )}/${date.getFullYear()}`;
-}
-
 export function normalizeTripDetail(apiData: unknown): TripDetail {
   const data = apiData as {
     trip?: {
@@ -241,7 +169,7 @@ export function normalizeTripDetail(apiData: unknown): TripDetail {
   const trip = data.trip ?? {};
   const vehicle = data.vehicle ?? {};
   const passengers = data.passengers ?? [];
-  const departTime = formatTime(trip.departureAt);
+  const departTime = formatLocalTime(trip.departureAt);
   const passengerCount = data.passengerCount ?? passengers.length;
   const totalSeats = vehicle.passengerCapacity ?? 16;
   const availableSeats = Math.max(0, totalSeats - passengerCount);
@@ -270,7 +198,7 @@ export function normalizeTripDetail(apiData: unknown): TripDetail {
       kind: "start",
     },
     {
-      time: formatTime(trip.expectedArrivalAt),
+      time: formatLocalTime(trip.expectedArrivalAt),
       name: destinationName,
       address:
         data.destinationProvince && data.destinationProvince !== destinationName

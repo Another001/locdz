@@ -1,4 +1,4 @@
-import { STORAGE_KEYS, getItem, setItem } from "@/lib/storage";
+import { STORAGE_KEYS, getItem, setItem } from "@/utils/storage";
 
 import { NoAuthClient } from "../../client/no-auth-client";
 import { APP_CODE, ApiError, wrapRequest } from "../../types";

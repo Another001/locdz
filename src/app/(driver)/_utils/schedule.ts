@@ -1,5 +1,7 @@
 import type { DaySchedule, Trip, TripPeriod, TripStatus } from "@/types";
 import type { ScheduleTrip } from "@/types/driver";
+import { formatTime } from "@/utils/format";
+import { splitRouteName } from "@/utils/route";
 
 const TIME_ZONE = "Asia/Ho_Chi_Minh";
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -19,13 +21,6 @@ const dateKeyFormatter = new Intl.DateTimeFormat("en-CA", {
   year: "numeric",
   month: "2-digit",
   day: "2-digit",
-});
-
-const timeFormatter = new Intl.DateTimeFormat("vi-VN", {
-  timeZone: TIME_ZONE,
-  hour: "2-digit",
-  minute: "2-digit",
-  hourCycle: "h23",
 });
 
 export interface ScheduleDay extends DaySchedule {
@@ -100,14 +95,6 @@ export function relativeWeekLabel(weekStart: string): string {
   return `Tuần ${formatShortDate(weekStart)}`;
 }
 
-export function formatTripTime(iso: string): string {
-  const date = new Date(iso);
-
-  if (Number.isNaN(date.getTime())) return "--:--";
-
-  return timeFormatter.format(date);
-}
-
 export function periodFromTime(time: string): TripPeriod {
   const hour = Number(time.slice(0, 2));
 
@@ -117,19 +104,6 @@ export function periodFromTime(time: string): TripPeriod {
   if (hour < 18) return "Chiều";
 
   return "Tối";
-}
-
-export function splitRouteName(routeName: string): [string, string] {
-  const parts = routeName
-    .split(/\s+(?:-|–|—|→|->|đi|đến)\s+/i)
-    .map((part) => part.trim())
-    .filter(Boolean);
-
-  if (parts.length >= 2) {
-    return [parts[0], parts.slice(1).join(" - ")];
-  }
-
-  return [routeName.trim(), ""];
 }
 
 export function mapTripStatus(
@@ -167,7 +141,7 @@ export function scheduleTripToTrip(trip: ScheduleTrip): Trip {
   const [from, to] = splitRouteName(
     trip.routeName || trip.routeCode || trip.tripCode
   );
-  const time = formatTripTime(trip.departureAt);
+  const time = formatTime(trip.departureAt);
 
   return {
     id: trip.id,

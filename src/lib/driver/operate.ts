@@ -1,40 +1,6 @@
 import type { OperateTrip, Passenger, RouteStop, SummaryItem } from "@/types";
-
-const TIME_ZONE = "Asia/Ho_Chi_Minh";
-
-const timeFormatter = new Intl.DateTimeFormat("vi-VN", {
-  timeZone: TIME_ZONE,
-  hour: "2-digit",
-  minute: "2-digit",
-  hour12: false,
-});
-
-const moneyFormatter = new Intl.NumberFormat("vi-VN", {
-  style: "currency",
-  currency: "VND",
-  maximumFractionDigits: 0,
-});
-
-export function maskPhone(phone: string): string {
-  const digits = phone.replace(/\D/g, "");
-  if (digits.length < 7) return phone;
-  const head = digits.slice(0, 4);
-  const tail = digits.slice(-3);
-  return `${head} *** ${tail}`;
-}
-
-export function formatMoney(amount: number): string {
-  return moneyFormatter.format(amount);
-}
-
-function formatTime(iso: string | undefined): string {
-  if (!iso) return "--:--";
-  try {
-    return timeFormatter.format(new Date(iso));
-  } catch {
-    return "--:--";
-  }
-}
+import { formatMoney, formatTime, maskPhone } from "@/utils/format";
+import { splitRouteName } from "@/utils/route";
 
 const STATUS_LABELS: Record<string, string> = {
   SCHEDULED: "Sắp tới",
@@ -188,17 +154,4 @@ export function normalizeOperateTrip(apiData: unknown): OperateTrip {
     passengers: mappedPassengers,
     stops,
   };
-}
-
-function splitRouteName(routeName: string): [string, string] {
-  const parts = routeName
-    .split(/\s+(?:-|–|—|→|->|đi|đến)\s+/i)
-    .map((part) => part.trim())
-    .filter(Boolean);
-
-  if (parts.length >= 2) {
-    return [parts[0], parts.slice(1).join(" - ")];
-  }
-
-  return [routeName.trim(), ""];
 }

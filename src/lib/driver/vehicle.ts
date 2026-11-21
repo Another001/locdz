@@ -4,31 +4,7 @@ import type {
   DriverVehicleRecentTrip,
   DriverVehicleResponse,
 } from "@/types/driver";
-
-function formatExpiryDate(isoDate: string | undefined): string {
-  if (!isoDate) return "—";
-  try {
-    const d = new Date(isoDate);
-    const month = String(d.getMonth() + 1).padStart(2, "0");
-    const year = String(d.getFullYear()).slice(-2);
-    return `HSD ${month}/${year}`;
-  } catch {
-    return "—";
-  }
-}
-
-function formatTripTime(isoDate: string | undefined): string {
-  if (!isoDate) return "—";
-  try {
-    return new Date(isoDate).toLocaleTimeString("vi-VN", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    });
-  } catch {
-    return "—";
-  }
-}
+import { formatExpiryDate, formatTripTime } from "@/utils/format";
 
 export function normalizeVehicle(
   api: DriverVehicleResponse

@@ -6,7 +6,7 @@ import {
 } from "axios";
 
 import { useSessionStore } from "@/global-states/session-store";
-import { STORAGE_KEYS, getItem, removeItem } from "@/lib/storage";
+import { STORAGE_KEYS, getItem, removeItem } from "@/utils/storage";
 
 import { refreshAccessTokenAPI } from "./auth/api/refresh";
 import { AuthClient } from "./client/auth-client";
