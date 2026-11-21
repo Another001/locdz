@@ -3,7 +3,6 @@ import { Be_Vietnam_Pro, Noto_Sans } from "next/font/google";
 
 import { QueryProvider } from "@/components/providers/query-provider";
 import { SessionSync } from "@/components/providers/session-sync";
-import { Sprite } from "@/components/ui/sprite";
 
 import "./globals.css";
 
@@ -41,7 +40,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         >
           Bỏ qua điều hướng
         </a>
-        <Sprite />
         <QueryProvider>
           <SessionSync />
           {children}
