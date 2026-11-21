@@ -1,9 +1,8 @@
 'use client'
 
-import { useMemo } from "react";
 import { Operations } from "./_component/operations";
 import { ScheduleBoard } from "./_component/schedule-board";
-import { useSchedule } from "../_hooks/use-schedule";
+import { useSchedule } from "./_hooks/use-schedule";
 import { toDateKey } from "../_utils/schedule";
 
 export default function DriverOverviewPage() {
@@ -30,14 +29,12 @@ export default function DriverOverviewPage() {
       trips,
     } = useSchedule();
 
-  const tripForSelectedDay = useMemo(() => {
-    if (!selectedDay?.dateKey) return undefined;
-
-    return trips.find((t) => {
-      const d = new Date(t.departureAt);
-      return !isNaN(d.getTime()) && toDateKey(d) === selectedDay.dateKey;
-    });
-  }, [trips, selectedDay?.dateKey]);
+  const tripForSelectedDay = selectedDay.dateKey
+    ? trips.find((t) => {
+        const d = new Date(t.departureAt);
+        return !isNaN(d.getTime()) && toDateKey(d) === selectedDay.dateKey;
+      })
+    : undefined;
 
   return (
     <main id="main">

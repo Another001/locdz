@@ -9,26 +9,32 @@ import { RejectTripModal } from "./reject-trip-modal";
 import { TripCard } from "./trip-card";
 import { ScheduleDay } from "../../_utils/schedule";
 
-interface ScheduleBoardInterface{
-  loading : any,
-  error: any,
-  actionError: any,
-  pendingTripId: any,
-  today: any,
-  weekDays: ScheduleDay[],
-  selectedDay: ScheduleDay,
-  selectedDate: any,
-  weekLabel: any,
-  weekRange: any,
-  reload: any,
-  goToPreviousWeek: any,
-  goToNextWeek: any,
-  goToDate: any,
-  clearActionError: any,
-  acceptTrip: any,
-  rejectTrip: any,
-  setAssignmentStatus: any,
-  setTripStatus: any,
+interface ScheduleBoardProps {
+  loading: boolean;
+  error: string | null;
+  actionError: string | null;
+  pendingTripId: string | null;
+  today: string;
+  weekDays: ScheduleDay[];
+  selectedDay: ScheduleDay;
+  selectedDate: string;
+  weekLabel: string;
+  weekRange: string;
+  reload: () => Promise<void>;
+  goToPreviousWeek: () => void;
+  goToNextWeek: () => void;
+  goToDate: (dateKey: string) => void;
+  clearActionError: () => void;
+  acceptTrip: (trip: Trip) => Promise<boolean>;
+  rejectTrip: (trip: Trip, reason: string) => Promise<boolean>;
+  setAssignmentStatus: (
+    trip: Trip,
+    status: "PREPARING" | "ARRIVED"
+  ) => Promise<boolean>;
+  setTripStatus: (
+    trip: Trip,
+    status: "IN_PROGRESS" | "COMPLETED"
+  ) => Promise<boolean>;
 }
 
 export function ScheduleBoard({
@@ -51,7 +57,7 @@ export function ScheduleBoard({
     rejectTrip,
     setAssignmentStatus,
     setTripStatus,
-  }: ScheduleBoardInterface) {
+  }: ScheduleBoardProps) {
 
   const [rejectingTrip, setRejectingTrip] = useState<Trip | null>(null);
   const dateInputRef = useRef<HTMLInputElement>(null);

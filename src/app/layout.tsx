@@ -29,7 +29,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="vi" className={`${heading.variable} ${body.variable}`}>
+    <html
+      lang="vi"
+      className={`${heading.variable} ${body.variable}`}
+      data-scroll-behavior="smooth"
+    >
       <body className="min-h-dvh bg-canvas font-body leading-[1.65] text-slate-600 antialiased">
         <a
           href="#main"

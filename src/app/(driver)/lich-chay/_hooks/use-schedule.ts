@@ -27,8 +27,8 @@ import {
   relativeWeekLabel,
   startOfWeek,
   todayKey,
-} from "../_utils/schedule";
-import type { ScheduleDay } from "../_utils/schedule";
+} from "../../_utils/schedule";
+import type { ScheduleDay } from "../../_utils/schedule";
 
 const EMPTY_DAY: ScheduleDay = {
   index: 0,

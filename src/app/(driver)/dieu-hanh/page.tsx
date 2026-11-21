@@ -21,15 +21,19 @@ const LOADING_FALLBACK = (
 export default function OperateTripPage() {
   return (
     <Suspense fallback={LOADING_FALLBACK}>
-      <OperateTripContent />
+      <OperateTripRoute />
     </Suspense>
   );
 }
 
-function OperateTripContent() {
+function OperateTripRoute() {
   const searchParams = useSearchParams();
   const tripId = searchParams.get("tripId") || "";
 
+  return <OperateTripContent key={tripId} tripId={tripId} />;
+}
+
+function OperateTripContent({ tripId }: { tripId: string }) {
   const {
     trip,
     loading,
@@ -132,7 +136,6 @@ function OperateTripContent() {
             <aside className="grid gap-[clamp(18px,2.4vw,24px)] min-[1025px]:sticky min-[1025px]:top-[94px]">
               <TripSidebar
                 summary={trip.summary}
-                vehicle={trip.vehicle}
                 status={trip.status}
                 onReportIncident={() => setIncidentOpen(true)}
                 onEndTrip={completeTrip}

@@ -147,10 +147,3 @@ export function userFromAccessToken(
   };
 }
 
-export function accessTokenFromCookieValue(
-  token: string | undefined
-): AuthUser | null {
-  if (!token) return null;
-
-  return userFromAccessToken(token);
-}

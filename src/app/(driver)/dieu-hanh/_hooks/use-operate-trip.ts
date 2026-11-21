@@ -45,8 +45,10 @@ interface UseOperateTripProps {
 
 export function useOperateTrip({ tripId }: UseOperateTripProps) {
   const [trip, setTrip] = useState<OperateTrip | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(Boolean(tripId));
+  const [error, setError] = useState<string | null>(
+    tripId ? null : "Thiếu mã chuyến."
+  );
   const [mutating, setMutating] = useState<Set<string>>(new Set());
   const today = useSyncExternalStore(subscribeToClock, todayKey, getServerToday);
 

@@ -6,8 +6,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import { Icon } from "@/components/ui/icon";
-import { getCurrentUser } from "@/lib/api/auth-client";
-import type { AuthUser } from "@/types/auth";
+import { useSessionStore } from "@/global-states/session-store";
 
 const navItems = [
   { label: "Tổng quan", href: "/" },
@@ -80,7 +79,7 @@ export function DriverHeader() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [user, setUser] = useState<AuthUser | null>(null);
+  const user = useSessionStore((state) => state.user);
   const headerRef = useRef<HTMLElement>(null);
   const nav = navItems.map((item) => ({
     ...item,
@@ -94,22 +93,6 @@ export function DriverHeader() {
     : user?.roles.includes("driver")
       ? "Tài xế"
       : ROLE_LABELS[user?.roles[0] ?? ""] ?? "Tài xế";
-
-  useEffect(() => {
-    if (pathname === "/dang-nhap") return;
-
-    let cancelled = false;
-
-    getCurrentUser()
-      .then((current) => {
-        if (!cancelled) setUser(current);
-      })
-      .catch(() => undefined);
-
-    return () => {
-      cancelled = true;
-    };
-  }, [pathname]);
 
   useEffect(() => {
     const update = () => setScrolled(window.scrollY > 8);

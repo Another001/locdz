@@ -1,5 +1,4 @@
 import type { OperateTrip, Passenger, RouteStop, SummaryItem } from "@/types";
-import type { DriverTripDetail } from "@/types/driver";
 
 const TIME_ZONE = "Asia/Ho_Chi_Minh";
 

@@ -8,7 +8,6 @@ const PANEL_TITLE =
 
 interface TripSidebarProps {
   summary: SummaryItem[];
-  vehicle: string;
   status: string;
   onReportIncident: () => void;
   onEndTrip: () => void;
@@ -17,7 +16,6 @@ interface TripSidebarProps {
 
 export function TripSidebar({
   summary,
-  vehicle,
   status,
   onReportIncident,
   onEndTrip,
